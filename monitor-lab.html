@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="th" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Azure Monitor & Alert Flow Lab • AZ-104</title>
+<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/lab.css">
+<link rel="stylesheet" href="assets/monitor-lab.css">
+</head>
+<body class="lab-body monitor-lab-body">
+<header class="lab-topbar">
+  <a class="lab-back" href="monitoring.html">← Monitoring</a>
+  <div class="lab-title-wrap"><span class="lab-kicker">INTERACTIVE LESSON</span><strong>Azure Monitor & Alert Flow Lab</strong></div>
+  <div class="lab-top-actions"><span id="stepCounter" class="lab-step">1 / 6</span><button class="icon-btn" id="themeToggle">◐</button></div>
+</header>
+
+<aside class="lab-rail" aria-label="Lesson sections">
+  <div class="rail-brand">AZ-104 VISUAL LAB</div>
+  <button class="rail-item active" data-step="0"><span>01</span><b>Telemetry Flow</b></button>
+  <button class="rail-item" data-step="1"><span>02</span><b>Metrics vs Logs</b></button>
+  <button class="rail-item" data-step="2"><span>03</span><b>Alert Rule</b></button>
+  <button class="rail-item" data-step="3"><span>04</span><b>Action Group</b></button>
+  <button class="rail-item" data-step="4"><span>05</span><b>Processing Rule</b></button>
+  <button class="rail-item" data-step="5"><span>06</span><b>Exam Check</b></button>
+  <div class="rail-tip">Mental model: เก็บ signal → evaluate condition → fired alert → processing → action</div>
+</aside>
+
+<main class="lab-main">
+  <section class="lab-panel lab-controls-panel">
+    <div class="panel-head">
+      <div>
+        <div class="eyebrow">TRACE THE ALERT</div>
+        <h1 id="lessonTitle">Telemetry flow</h1>
+        <p id="lessonSubtitle">เลือก signal และ scenario แล้วกด Run flow</p>
+      </div>
+      <div class="signal-tabs">
+        <button class="signal-btn active" data-signal="metric">Metric</button>
+        <button class="signal-btn" data-signal="log">Log / KQL</button>
+      </div>
+    </div>
+
+    <div class="scenario-row">
+      <span class="scenario-label">SIMULATE</span>
+      <button class="sim-btn active" data-sim="normal">Healthy</button>
+      <button class="sim-btn" data-sim="cpu">CPU &gt; 80%</button>
+      <button class="sim-btn" data-sim="errors">App errors</button>
+      <button class="sim-btn" data-sim="maintenance">Maintenance suppression</button>
+      <button class="sim-btn" data-sim="noaction">No Action Group</button>
+      <button class="btn primary run-flow-btn" id="runFlow">▶ Run alert flow</button>
+    </div>
+  </section>
+
+  <section class="monitor-workspace">
+    <article class="diagram-card monitor-diagram-card">
+      <div class="diagram-head">
+        <div><span class="diagram-label">PIPELINE</span><h2 id="diagramTitle">VM CPU metric → alert → notification</h2></div>
+        <div class="legend"><span><i class="dot path-ok"></i>processed</span><span><i class="dot path-fail"></i>blocked/suppressed</span></div>
+      </div>
+
+      <div class="monitor-flow">
+        <div class="flow-node" data-node="resource"><div class="node-icon">VM</div><small>SOURCE</small><strong>Azure Resource</strong><span id="resourceCaption">Virtual machine</span></div>
+        <div class="flow-link"><i></i><b>›</b></div>
+        <div class="flow-node" data-node="signal"><div class="node-icon" id="signalIcon">M</div><small>SIGNAL</small><strong id="signalTitle">Metric</strong><span id="signalCaption">Percentage CPU</span></div>
+        <div class="flow-link"><i></i><b>›</b></div>
+        <div class="flow-node" data-node="store"><div class="node-icon" id="storeIcon">AM</div><small>DATA</small><strong id="storeTitle">Azure Monitor Metrics</strong><span id="storeCaption">time-series numeric data</span></div>
+        <div class="flow-link"><i></i><b>›</b></div>
+        <div class="flow-node" data-node="rule"><div class="node-icon">AR</div><small>EVALUATE</small><strong>Alert Rule</strong><span id="ruleCaption">CPU > 80%</span></div>
+        <div class="flow-link"><i></i><b>›</b></div>
+        <div class="flow-node" data-node="processing"><div class="node-icon">PR</div><small>PROCESS</small><strong>Processing Rule</strong><span id="processingCaption">No modification</span></div>
+        <div class="flow-link"><i></i><b>›</b></div>
+        <div class="flow-node" data-node="action"><div class="node-icon">AG</div><small>ACTION</small><strong>Action Group</strong><span id="actionCaption">Email + webhook</span></div>
+      </div>
+
+      <div class="alert-readout">
+        <div class="alert-lamp" id="alertLamp"></div>
+        <div><span>RESULT</span><strong id="flowResult">Ready</strong><p id="flowExplain">กด Run alert flow เพื่อดูว่า alert ถูกยิงและ notification ออกหรือไม่</p></div>
+      </div>
+
+      <div class="kql-panel" id="kqlPanel">
+        <span>KQL SAMPLE</span>
+        <code id="kqlCode">AppTraces
+| where TimeGenerated &gt; ago(5m)
+| where SeverityLevel &gt;= 3
+| summarize ErrorCount=count()</code>
+      </div>
+    </article>
+
+    <aside class="monitor-status-card">
+      <span class="explain-eyebrow">EXAM DECISION</span>
+      <h3 id="decisionTitle">Metric alert</h3>
+      <p id="decisionBody">ใช้เมื่อเงื่อนไขเป็นค่าตัวเลข time-series เช่น CPU, requests, latency และต้องการ evaluation ที่ตรงไปตรงมา</p>
+
+      <div class="status-list">
+        <div class="status-row" id="conditionStatus"><span>CONDITION</span><b>NOT MET</b><em id="conditionDetail">CPU 35%</em></div>
+        <div class="status-row" id="alertStatus"><span>ALERT</span><b>NO FIRE</b><em id="alertDetail">condition false</em></div>
+        <div class="status-row" id="processingStatus"><span>PROCESSING</span><b>PASS</b><em id="processingDetail">no suppression</em></div>
+        <div class="status-row" id="actionStatus"><span>ACTION</span><b>IDLE</b><em id="actionDetail">nothing invoked</em></div>
+      </div>
+
+      <div class="memory-box">
+        <span>จำไปสอบ</span>
+        <strong id="memoryRule">Alert Rule = WHEN • Action Group = WHAT/NOW WHO</strong>
+      </div>
+      <div class="trap-box">
+        <span>EXAM TRAP</span>
+        <p id="trapText">Alert processing rule ไม่ได้สร้าง alert ใหม่ มันแก้ behavior ของ fired alert เช่น suppress หรือ add action groups.</p>
+      </div>
+    </aside>
+  </section>
+
+  <section class="compare-section">
+    <div class="section-head-row"><div><span class="diagram-label">FAST COMPARE</span><h2>Metrics vs Logs</h2></div></div>
+    <div class="compare-grid">
+      <button class="compare-card" data-choose="metric"><span>METRICS</span><b>Numeric time-series</b><ul><li>CPU / requests / latency</li><li>threshold + dimensions</li><li>quick charting & alerting</li></ul></button>
+      <button class="compare-card" data-choose="log"><span>LOGS</span><b>Queryable records with KQL</b><ul><li>events / traces / custom fields</li><li>complex filtering & aggregation</li><li>Log Analytics workspace</li></ul></button>
+      <button class="compare-card" data-choose="action"><span>ACTION GROUP</span><b>Notification / automation</b><ul><li>email / SMS / push</li><li>webhook / Function / Logic App</li><li>reusable across alert rules</li></ul></button>
+      <button class="compare-card" data-choose="processing"><span>PROCESSING RULE</span><b>Modify fired-alert behavior</b><ul><li>suppress during maintenance</li><li>add action groups</li><li>scope + filters + schedule</li></ul></button>
+    </div>
+  </section>
+
+  <section class="challenge-section" id="challengeSection">
+    <div class="challenge-card">
+      <span class="diagram-label">MINI EXAM</span>
+      <h2 id="challengeTitle">Scenario 1 / 4</h2>
+      <p class="challenge-q" id="challengeQ"></p>
+      <div class="answer-grid" id="answers"></div>
+      <div class="challenge-feedback" id="challengeFeedback">เลือกคำตอบ แล้วดูเหตุผล</div>
+      <button class="btn" id="nextChallenge">Next scenario →</button>
+    </div>
+  </section>
+</main>
+
+<nav class="lesson-nav">
+  <button class="btn" id="prevStep">← Previous</button>
+  <div class="lesson-progress"><i id="lessonProgress"></i></div>
+  <button class="btn primary" id="nextStep">Next →</button>
+</nav>
+
+<script src="assets/monitor-lab.js"></script>
+</body>
+</html>
