@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="th" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>App Service Visual Lab • AZ-104</title>
+<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/lab.css">
+<link rel="stylesheet" href="assets/appservice-lab.css">
+</head>
+<body class="lab-body appservice-lab-body">
+<header class="lab-topbar">
+  <a class="lab-back" href="compute.html">← Compute</a>
+  <div class="lab-title-wrap"><span class="lab-kicker">INTERACTIVE LESSON</span><strong>App Service Slots, Scale & Networking</strong></div>
+  <div class="lab-top-actions"><span id="stepCounter" class="lab-step">1 / 6</span><button class="icon-btn" id="themeToggle">◐</button></div>
+</header>
+
+<aside class="lab-rail" aria-label="Lesson sections">
+  <div class="rail-brand">AZ-104 VISUAL LAB</div>
+  <button class="rail-item active" data-step="0"><span>01</span><b>Architecture</b></button>
+  <button class="rail-item" data-step="1"><span>02</span><b>Deployment Slots</b></button>
+  <button class="rail-item" data-step="2"><span>03</span><b>Swap Flow</b></button>
+  <button class="rail-item" data-step="3"><span>04</span><b>Scale Up / Out</b></button>
+  <button class="rail-item" data-step="4"><span>05</span><b>Networking</b></button>
+  <button class="rail-item" data-step="5"><span>06</span><b>Exam Check</b></button>
+  <div class="rail-tip">Mental model: Plan = compute boundary • Slot = live app endpoint • Private Endpoint = inbound • VNet Integration = outbound</div>
+</aside>
+
+<main class="lab-main">
+  <section class="lab-panel lab-controls-panel">
+    <div class="panel-head">
+      <div>
+        <div class="eyebrow">APP SERVICE DECISION LAB</div>
+        <h1 id="lessonTitle">App Service architecture</h1>
+        <p id="lessonSubtitle">ดูว่า App Service Plan, Web App, Slots, Scale และ Networking เกี่ยวกันอย่างไร</p>
+      </div>
+      <div class="mode-tabs app-mode-tabs">
+        <button class="mode-btn active" data-mode="slots">Slots</button>
+        <button class="mode-btn" data-mode="scale">Scale</button>
+        <button class="mode-btn" data-mode="network">Network</button>
+      </div>
+    </div>
+    <div class="scenario-row">
+      <span class="scenario-label">SIMULATE</span>
+      <button class="sim-btn active" data-sim="deploy">Deploy v2 → staging</button>
+      <button class="sim-btn" data-sim="swap">Swap → production</button>
+      <button class="sim-btn" data-sim="scaleup">Scale up</button>
+      <button class="sim-btn" data-sim="scaleout">Scale out</button>
+      <button class="sim-btn" data-sim="private">Private inbound</button>
+      <button class="sim-btn" data-sim="vnet">VNet outbound</button>
+      <button class="btn primary run-btn" id="runScenario">▶ Run</button>
+    </div>
+  </section>
+
+  <section class="app-workspace">
+    <article class="diagram-card app-diagram-card">
+      <div class="diagram-head">
+        <div><span class="diagram-label">TOPOLOGY</span><h2 id="diagramTitle">App Service Plan hosts your apps and slots</h2></div>
+        <div class="legend"><span><i class="dot app-live"></i>live</span><span><i class="dot app-flow"></i>flow</span><span><i class="dot app-sticky"></i>slot-specific</span></div>
+      </div>
+
+      <div class="app-plan" id="appPlan">
+        <div class="plan-head">
+          <div><small>APP SERVICE PLAN</small><strong id="planTier">Standard S1</strong></div>
+          <div class="plan-meta"><span id="planCpu">1 vCPU class</span><span id="instanceCount">2 instances</span></div>
+        </div>
+
+        <div class="instances" id="instances">
+          <div class="worker"><b>Worker 1</b><span>Production + Staging</span></div>
+          <div class="worker"><b>Worker 2</b><span>Production + Staging</span></div>
+        </div>
+
+        <div class="slots-stage">
+          <div class="slot-card production" id="prodSlot">
+            <div class="slot-badge">PRODUCTION</div>
+            <strong id="prodVersion">v1.0</strong>
+            <span>myapp.azurewebsites.net</span>
+            <div class="setting-list">
+              <div><small>FEATURE_FLAG</small><b id="prodSwapSetting">stable</b><em>swappable</em></div>
+              <div class="sticky"><small>API_URL</small><b id="prodStickySetting">prod-api</b><em>slot setting</em></div>
+            </div>
+          </div>
+
+          <div class="swap-lane" id="swapLane">
+            <span id="swapCaption">content/config swap</span>
+            <div class="swap-arrows"><i></i><b>⇄</b></div>
+            <small id="warmupState">staging isolated</small>
+          </div>
+
+          <div class="slot-card staging" id="stageSlot">
+            <div class="slot-badge">STAGING</div>
+            <strong id="stageVersion">v1.1-rc</strong>
+            <span>myapp-staging.azurewebsites.net</span>
+            <div class="setting-list">
+              <div><small>FEATURE_FLAG</small><b id="stageSwapSetting">beta</b><em>swappable</em></div>
+              <div class="sticky"><small>API_URL</small><b id="stageStickySetting">staging-api</b><em>slot setting</em></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="network-stage" id="networkStage">
+        <div class="net-client"><small>PRIVATE CLIENT</small><strong>10.20.1.10</strong><span>VNet / on-prem</span></div>
+        <div class="net-link inbound" id="inboundLink"><span>Private Link</span><i></i><b>›</b></div>
+        <div class="private-endpoint" id="privateEndpoint"><small>INBOUND</small><strong>Private Endpoint</strong><span>10.20.2.5</span></div>
+        <div class="net-link appin" id="appInLink"><i></i><b>›</b></div>
+        <div class="app-node"><small>APP SERVICE</small><strong>Web App</strong><span>worker instances</span></div>
+        <div class="net-link outbound" id="outboundLink"><span>VNet Integration</span><i></i><b>›</b></div>
+        <div class="integration-subnet"><small>OUTBOUND</small><strong>Delegated subnet</strong><span>10.30.1.0/26</span></div>
+        <div class="net-link target" id="targetLink"><i></i><b>›</b></div>
+        <div class="private-resource"><small>PRIVATE RESOURCE</small><strong>SQL / Storage / VM</strong><span>reachable through VNet</span></div>
+      </div>
+
+      <div class="scenario-readout">
+        <div class="scenario-lamp" id="scenarioLamp"></div>
+        <div><span>RESULT</span><strong id="scenarioResult">Ready</strong><p id="scenarioExplain">เลือก scenario แล้วกด Run เพื่อดู flow</p></div>
+      </div>
+    </article>
+
+    <aside class="app-status-card">
+      <span class="explain-eyebrow">EXAM DECISION</span>
+      <h3 id="decisionTitle">App Service Plan</h3>
+      <p id="decisionBody">Plan เป็น compute/pricing boundary ของ App Service และการ scale plan มีผลกับ apps ที่อยู่ใน plan นั้น</p>
+
+      <div class="decision-list">
+        <div class="decision-row"><span>SCOPE</span><b id="scopeValue">App Service Plan</b></div>
+        <div class="decision-row"><span>ACTION</span><b id="actionValue">Host apps</b></div>
+        <div class="decision-row"><span>TRAFFIC</span><b id="trafficValue">Public by default</b></div>
+        <div class="decision-row"><span>KEY WORD</span><b id="keywordValue">compute boundary</b></div>
+      </div>
+
+      <div class="memory-box"><span>จำไปสอบ</span><strong id="memoryRule">Scale up = bigger plan • Scale out = more instances</strong></div>
+      <div class="trap-box"><span>EXAM TRAP</span><p id="trapText">Private Endpoint ไม่ได้ทำ outbound integration. ถ้า App ต้องเรียก private SQL/Storage ใน VNet ให้คิดถึง VNet Integration.</p></div>
+    </aside>
+  </section>
+
+  <section class="slot-settings-section">
+    <div class="section-head-row"><div><span class="diagram-label">SWAP BEHAVIOR</span><h2>What swaps and what stays?</h2></div></div>
+    <div class="swap-compare-grid">
+      <button class="swap-card" data-swaptype="moves"><span>SWAPS / FOLLOWS CONTENT</span><b>App content + many app settings</b><ul><li>framework/platform settings</li><li>normal app settings</li><li>normal connection strings</li><li>handler mappings / public certs</li></ul></button>
+      <button class="swap-card" data-swaptype="sticks"><span>STAYS WITH SLOT</span><b>Slot-specific / non-swapped settings</b><ul><li>settings marked Deployment slot setting</li><li>custom domains</li><li>scale settings</li><li>managed identity / VNet integration</li></ul></button>
+      <button class="swap-card" data-swaptype="preview"><span>SWAP WITH PREVIEW</span><b>Warm + validate before complete</b><ul><li>apply target slot settings to source</li><li>warm source instances</li><li>validate then complete/cancel</li></ul></button>
+    </div>
+  </section>
+
+  <section class="scale-section">
+    <div class="section-head-row"><div><span class="diagram-label">SCALING</span><h2>Scale up vs Scale out</h2></div></div>
+    <div class="scale-visual-grid">
+      <button class="scale-card" data-scale="up"><div class="scale-icon">⬆</div><span>SCALE UP</span><b>Bigger pricing tier / worker size</b><small>more CPU, memory, storage and plan features</small></button>
+      <button class="scale-card" data-scale="out"><div class="scale-icon">↔</div><span>SCALE OUT</span><b>More worker instances</b><small>manual / autoscale / automatic scaling depending on tier and requirement</small></button>
+      <button class="scale-card" data-scale="plan"><div class="scale-icon">▦</div><span>PLAN SCOPE</span><b>Apps share plan compute</b><small>scale settings affect the App Service plan; dependent services scale separately</small></button>
+    </div>
+  </section>
+
+  <section class="network-compare-section">
+    <div class="section-head-row"><div><span class="diagram-label">NETWORKING</span><h2>Private Endpoint vs VNet Integration</h2></div></div>
+    <div class="compare-grid">
+      <button class="compare-card" data-net="pe"><span>PRIVATE ENDPOINT</span><b>Inbound private access</b><ul><li>client → app</li><li>private IP from VNet</li><li>configure per slot</li></ul></button>
+      <button class="compare-card" data-net="vnet"><span>VNET INTEGRATION</span><b>Outbound from app</b><ul><li>app → private resources</li><li>dedicated delegated subnet</li><li>same-region VNet integration</li></ul></button>
+      <button class="compare-card" data-net="dns"><span>PRIVATE DNS</span><b>Name must resolve privately</b><ul><li>private endpoint needs correct DNS</li><li>link private DNS zone to VNet</li><li>wrong DNS often means public path/403</li></ul></button>
+      <button class="compare-card" data-net="subnet"><span>SUBNET TRAP</span><b>Do not use same subnet</b><ul><li>VNet Integration subnet is delegated</li><li>Private Endpoint uses a different subnet</li><li>remember inbound ≠ outbound</li></ul></button>
+    </div>
+  </section>
+
+  <section class="challenge-section" id="challengeSection">
+    <div class="challenge-card">
+      <span class="diagram-label">MINI EXAM</span>
+      <h2 id="challengeTitle">Scenario 1 / 5</h2>
+      <p class="challenge-q" id="challengeQ"></p>
+      <div class="answer-grid" id="answers"></div>
+      <div class="challenge-feedback" id="challengeFeedback">เลือกคำตอบ แล้วดูเหตุผล</div>
+      <button class="btn" id="nextChallenge">Next scenario →</button>
+    </div>
+  </section>
+</main>
+
+<nav class="lesson-nav">
+  <button class="btn" id="prevStep">← Previous</button>
+  <div class="lesson-progress"><i id="lessonProgress"></i></div>
+  <button class="btn primary" id="nextStep">Next →</button>
+</nav>
+
+<script src="assets/appservice-lab.js"></script>
+</body>
+</html>
