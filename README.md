@@ -16,5 +16,11 @@ This repository is designed to publish the interactive study guide with GitHub P
 - Scenario quizzes
 - Local browser progress tracking
 - Dark / light theme
+- Visual interactive labs
+
+## Visual Labs
+
+- `rbac-lab.html` — RBAC / Policy / Locks scope inheritance and scenarios
+- `storage-lab.html` — LRS / ZRS / GRS / RA-GRS / GZRS / RA-GZRS redundancy and failure simulator
 
 > Study aid only. Always use the current Microsoft Learn AZ-104 study guide as the authoritative exam-scope reference.
