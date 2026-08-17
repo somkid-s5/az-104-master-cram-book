@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="th" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Networking Flow Visual Lab • AZ-104</title>
+<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/lab.css">
+<link rel="stylesheet" href="assets/networking-lab.css">
+</head>
+<body class="lab-body networking-lab-body">
+<header class="lab-topbar">
+  <a class="lab-back" href="networking.html">← Networking</a>
+  <div class="lab-title-wrap"><span class="lab-kicker">INTERACTIVE LESSON</span><strong>Networking Flow Visual Lab</strong></div>
+  <div class="lab-top-actions"><span id="stepCounter" class="lab-step">1 / 6</span><button class="icon-btn" id="themeToggle">◐</button></div>
+</header>
+<aside class="lab-rail" aria-label="Lesson sections">
+  <div class="rail-brand">AZ-104 VISUAL LAB</div>
+  <button class="rail-item active" data-step="0"><span>01</span><b>Flow Map</b></button>
+  <button class="rail-item" data-step="1"><span>02</span><b>DNS</b></button>
+  <button class="rail-item" data-step="2"><span>03</span><b>Route / UDR</b></button>
+  <button class="rail-item" data-step="3"><span>04</span><b>NSG</b></button>
+  <button class="rail-item" data-step="4"><span>05</span><b>Peering & Endpoints</b></button>
+  <button class="rail-item" data-step="5"><span>06</span><b>Troubleshoot</b></button>
+  <div class="rail-tip">นี่คือ troubleshooting mental model — ใช้ตามรอย DNS, route, security และ endpoint ทีละ checkpoint</div>
+</aside>
+<main class="lab-main">
+  <section class="lab-panel lab-controls-panel">
+    <div class="panel-head">
+      <div><div class="eyebrow">ตามรอย connection</div><h1 id="lessonTitle">Flow map</h1><p id="lessonSubtitle">เลือกปลายทางแล้วกด Run packet เพื่อดูแต่ละ checkpoint</p></div>
+      <div class="destination-tabs" id="destinationTabs">
+        <button class="destination-btn active" data-dest="private">Private Endpoint</button>
+        <button class="destination-btn" data-dest="service">Service Endpoint</button>
+        <button class="destination-btn" data-dest="peer">Peered VM</button>
+        <button class="destination-btn" data-dest="internet">Internet</button>
+      </div>
+    </div>
+    <div class="issue-row">
+      <span class="issue-label">SIMULATE ISSUE</span>
+      <button class="issue-btn active" data-issue="none">Healthy</button>
+      <button class="issue-btn" data-issue="dns">DNS wrong</button>
+      <button class="issue-btn" data-issue="route">UDR wrong</button>
+      <button class="issue-btn" data-issue="nsg">NSG deny</button>
+      <button class="issue-btn" data-issue="peering">Peering broken</button>
+      <button class="issue-btn" data-issue="endpoint">Endpoint misconfig</button>
+      <button class="btn primary run-btn" id="runPacket">▶ Run packet</button>
+    </div>
+  </section>
+
+  <section class="network-workspace">
+    <div class="diagram-card network-diagram-card">
+      <div class="diagram-head">
+        <div><span class="diagram-label">DIAGNOSTIC CHECKPOINTS</span><h2 id="diagramTitle">VM → Storage via Private Endpoint</h2></div>
+        <div class="legend"><span><i class="dot path-ok"></i> passed</span><span><i class="dot path-fail"></i> failed</span><span><i class="dot path-wait"></i> unchecked</span></div>
+      </div>
+      <div class="path-stage" id="pathStage">
+        <div class="checkpoint source" data-node="source"><div class="cp-icon">VM</div><small>SOURCE</small><strong>App VM</strong><span>10.10.1.4</span></div>
+        <div class="path-link" data-link="0"><i></i><b>→</b></div>
+        <div class="checkpoint" data-node="dns"><div class="cp-icon">DNS</div><small>CHECK 1</small><strong>DNS Resolution</strong><span id="dnsCaption">10.20.1.4</span></div>
+        <div class="path-link" data-link="1"><i></i><b>→</b></div>
+        <div class="checkpoint" data-node="route"><div class="cp-icon">RT</div><small>CHECK 2</small><strong>Effective Route</strong><span id="routeCaption">VirtualNetwork</span></div>
+        <div class="path-link" data-link="2"><i></i><b>→</b></div>
+        <div class="checkpoint" data-node="nsg"><div class="cp-icon">NSG</div><small>CHECK 3</small><strong>Security Rules</strong><span id="nsgCaption">Allow TCP 443</span></div>
+        <div class="path-link" data-link="3"><i></i><b>→</b></div>
+        <div class="checkpoint" data-node="link"><div class="cp-icon" id="linkIcon">PE</div><small>CHECK 4</small><strong id="linkTitle">Private Endpoint</strong><span id="linkCaption">Connected</span></div>
+        <div class="path-link" data-link="4"><i></i><b>→</b></div>
+        <div class="checkpoint destination" data-node="destination"><div class="cp-icon" id="destIcon">STG</div><small>DESTINATION</small><strong id="destTitle">Storage Account</strong><span id="destCaption">HTTPS 443</span></div>
+      </div>
+      <div class="packet-readout"><div class="packet-lamp" id="packetLamp"></div><div><span>CONNECTION RESULT</span><strong id="connectionResult">Ready to test</strong><p id="connectionExplain">กด Run packet แล้วระบบจะไล่ checkpoint ทีละจุด</p></div></div>
+      <div class="mental-model-note">ภาพนี้ใช้เป็น <b>troubleshooting mental model</b> ไม่ใช่ลำดับ internal packet-processing แบบ wire-level ของ Azure</div>
+    </div>
+    <aside class="network-status-card">
+      <div class="explain-eyebrow">CURRENT DIAGNOSIS</div><h3 id="diagnosisTitle">Healthy Private Endpoint path</h3><p id="diagnosisBody"></p>
+      <div class="network-status-list">
+        <div class="network-status" id="dnsStatus"><span>DNS</span><b>PASS</b><em id="dnsDetail"></em></div>
+        <div class="network-status" id="routeStatus"><span>ROUTE</span><b>PASS</b><em id="routeDetail"></em></div>
+        <div class="network-status" id="nsgStatus"><span>NSG</span><b>PASS</b><em id="nsgDetail"></em></div>
+        <div class="network-status" id="linkStatus"><span>LINK</span><b>PASS</b><em id="linkDetail"></em></div>
+      </div>
+      <div class="tool-box"><span>USE THIS TOOL</span><strong id="toolTitle">Connection troubleshoot</strong><p id="toolText"></p></div>
+      <div class="memory-box"><span>จำไปสอบ</span><strong id="memoryRule">Private Endpoint = private IP</strong></div>
+      <div class="trap-box"><span>EXAM TRAP</span><p id="trapText"></p></div>
+    </aside>
+  </section>
+
+  <section class="compare-section"><div class="section-head-row"><div><div class="eyebrow">Fast compare</div><h2>Service Endpoint vs Private Endpoint</h2></div><span class="muted">คลิกเพื่อโหลด topology</span></div><div class="endpoint-compare">
+    <button class="endpoint-card" data-dest="service"><span>SERVICE ENDPOINT</span><b>Public service endpoint + subnet identity</b><ul><li>DNS ยัง resolve public IP</li><li>เปิดบน subnet</li><li>ใช้ service firewall/VNet rule</li><li>Next hop อาจเห็น VirtualNetworkServiceEndpoint</li></ul></button>
+    <button class="endpoint-card" data-dest="private"><span>PRIVATE ENDPOINT</span><b>Private IP inside your VNet</b><ul><li>DNS ต้องชี้ FQDN ไป private IP</li><li>ใช้ Private Link</li><li>เหมาะกับ private access</li><li>Public network สามารถปิดได้</li></ul></button>
+  </div></section>
+
+  <section class="scenario-section"><div class="section-head-row"><div><div class="eyebrow">Scenario presets</div><h2>โหลดโจทย์แล้วดู root cause</h2></div></div><div class="scenario-grid network-scenarios">
+    <button class="scenario-card" data-scenario="private-dns"><span class="scenario-no">01</span><b>Storage ปิด Public access แต่ FQDN ยัง resolve public IP</b><small>ดูว่าทำไม Private Endpoint มีแล้วแต่ยังต่อไม่ได้</small></button>
+    <button class="scenario-card" data-scenario="forced-route"><span class="scenario-no">02</span><b>UDR บังคับ traffic ไป NVA แล้ว connection หาย</b><small>ใช้ Effective routes / Next hop หาเส้นทางผิด</small></button>
+    <button class="scenario-card" data-scenario="nsg-block"><span class="scenario-no">03</span><b>TCP 443 ถูก deny ด้วย priority 100</b><small>จำ lower number = higher priority และ NSG เป็น stateful</small></button>
+    <button class="scenario-card" data-scenario="peer"><span class="scenario-no">04</span><b>VM ใน VNet A ไป VM ใน VNet B ไม่ได้</b><small>Peering ต้อง Connected ทั้งสองทิศ และ peering ไม่ transitive</small></button>
+  </div></section>
+
+  <section class="diagnostic-section"><div class="section-head-row"><div><div class="eyebrow">Troubleshooting toolbox</div><h2>เลือกเครื่องมือให้ตรงอาการ</h2></div></div><div class="diagnostic-grid">
+    <div class="diagnostic-card"><b>IP Flow Verify</b><span>NSG allow/deny + rule ที่เป็นสาเหตุ</span></div><div class="diagnostic-card"><b>Next Hop</b><span>traffic จะไป Internet / VNet / Peering / NVA / None</span></div><div class="diagnostic-card"><b>Effective Routes</b><span>ดู route ที่ NIC ใช้จริง และหา UDR/BGP ที่ override</span></div><div class="diagnostic-card"><b>Effective Security Rules</b><span>รวม NSG ที่ subnet + NIC แล้วดูผลจริง</span></div><div class="diagnostic-card"><b>Connection Troubleshoot</b><span>ตรวจ end-to-end และช่วยชี้ NSG / UDR / blocked port</span></div><div class="diagnostic-card"><b>DNS test</b><span>เช็ก FQDN ว่า resolve ไป IP ที่ requirement ต้องการหรือไม่</span></div>
+  </div></section>
+
+  <section class="challenge-section" id="challengeSection"><div class="challenge-card"><div class="eyebrow">Mini challenge</div><h2>Requirement นี้ควรเลือกอะไร?</h2><p class="challenge-q">Storage Account ต้อง <b>ไม่มี public network access</b> และ VM ใน VNet ต้องเข้าผ่าน <b>private IP</b> โดยใช้ชื่อเดิม <code>account.blob.core.windows.net</code> ควรออกแบบแบบใด?</p><div class="answer-grid" id="answerGrid"><button data-answer="A">A. Service Endpoint อย่างเดียว</button><button data-answer="B">B. Private Endpoint + Private DNS</button><button data-answer="C">C. Public IP + NSG</button><button data-answer="D">D. VNet Peering อย่างเดียว</button></div><div class="challenge-feedback" id="challengeFeedback">เลือกคำตอบเพื่อดูเหตุผล</div></div></section>
+  <div class="lesson-nav"><button class="btn" id="prevStep">← Prev</button><div class="lesson-progress"><i id="lessonProgress"></i></div><button class="btn primary" id="nextStep">Next →</button></div>
+</main>
+<script src="assets/networking-lab.js"></script>
+</body></html>
