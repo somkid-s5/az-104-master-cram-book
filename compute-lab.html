@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="th" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VM Availability & Scaling Lab • AZ-104</title>
+<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/lab.css">
+<link rel="stylesheet" href="assets/compute-lab.css">
+</head>
+<body class="lab-body compute-lab-body">
+<header class="lab-topbar">
+  <a class="lab-back" href="compute.html">← Compute</a>
+  <div class="lab-title-wrap"><span class="lab-kicker">INTERACTIVE LESSON</span><strong>VM Availability & Scaling Simulator</strong></div>
+  <div class="lab-top-actions"><span id="stepCounter" class="lab-step">1 / 6</span><button class="icon-btn" id="themeToggle">◐</button></div>
+</header>
+<aside class="lab-rail" aria-label="Lesson sections">
+  <div class="rail-brand">AZ-104 VISUAL LAB</div>
+  <button class="rail-item active" data-step="0"><span>01</span><b>Choose Architecture</b></button>
+  <button class="rail-item" data-step="1"><span>02</span><b>Availability Set</b></button>
+  <button class="rail-item" data-step="2"><span>03</span><b>Availability Zones</b></button>
+  <button class="rail-item" data-step="3"><span>04</span><b>VM Scale Sets</b></button>
+  <button class="rail-item" data-step="4"><span>05</span><b>Failure Simulator</b></button>
+  <button class="rail-item" data-step="5"><span>06</span><b>Exam Challenge</b></button>
+  <div class="rail-tip">อย่าจำชื่อ service อย่างเดียว ให้ถามว่าโจทย์ต้องการ “fault isolation”, “zone isolation” หรือ “scale” — แล้วค่อยเลือก architecture</div>
+</aside>
+<main class="lab-main">
+  <section class="lab-panel lab-controls-panel">
+    <div class="panel-head">
+      <div><div class="eyebrow">availability decision</div><h1 id="lessonTitle">Choose architecture</h1><p id="lessonSubtitle">เลือก requirement แล้วดูว่า architecture ไหนตอบโจทย์ที่สุด</p></div>
+      <div class="mode-tabs" id="modeTabs">
+        <button class="mode-btn active" data-mode="avset">Availability Set</button>
+        <button class="mode-btn" data-mode="zones">Availability Zones</button>
+        <button class="mode-btn" data-mode="vmss">VM Scale Set</button>
+      </div>
+    </div>
+    <div class="scenario-row">
+      <span class="scenario-label">REQUIREMENT</span>
+      <button class="scenario-btn" data-scenario="rack">Protect rack / host failure</button>
+      <button class="scenario-btn" data-scenario="zone">Protect datacenter / zone failure</button>
+      <button class="scenario-btn" data-scenario="scale">Traffic changes — autoscale</button>
+      <button class="scenario-btn" data-scenario="both">Zone resilience + autoscale</button>
+    </div>
+    <div class="vmss-controls" id="vmssControls">
+      <label><span>VMSS topology</span><select id="zoneMode"><option value="regional">Regional / fault domains</option><option value="zone">Zone-spanning</option></select></label>
+      <label><span>Desired instances</span><input id="capacity" type="range" min="2" max="8" value="3"><b id="capacityValue">3</b></label>
+      <label class="toggle-label"><input id="autoscale" type="checkbox" checked><span>Autoscale enabled</span></label>
+    </div>
+  </section>
+  <section class="compute-workspace">
+    <div class="lab-panel architecture-card">
+      <div class="diagram-head"><div><span class="eyebrow">visual topology</span><h2 id="diagramTitle">Availability Set</h2></div><div class="arch-badges"><span id="badgeAvailability">HA</span><span id="badgeScale">Manual scale</span></div></div>
+      <div class="region-stage" id="regionStage">
+        <div class="region-label">AZURE REGION</div>
+        <div class="zone-grid">
+          <div class="zone" data-zone="1"><span class="zone-title">Zone 1</span><div class="fault-grid"><div class="fault-domain" data-fd="1"><small>FD1</small><div class="vm-slot" data-slot="0"></div><div class="vm-slot" data-slot="3"></div></div><div class="fault-domain" data-fd="2"><small>FD2</small><div class="vm-slot" data-slot="1"></div><div class="vm-slot" data-slot="4"></div></div><div class="fault-domain" data-fd="3"><small>FD3</small><div class="vm-slot" data-slot="2"></div><div class="vm-slot" data-slot="5"></div></div></div></div>
+          <div class="zone" data-zone="2"><span class="zone-title">Zone 2</span><div class="fault-grid"><div class="fault-domain" data-fd="1"><small>FD1</small><div class="vm-slot" data-slot="6"></div></div><div class="fault-domain" data-fd="2"><small>FD2</small><div class="vm-slot" data-slot="7"></div></div><div class="fault-domain" data-fd="3"><small>FD3</small><div class="vm-slot" data-slot="8"></div></div></div></div>
+          <div class="zone" data-zone="3"><span class="zone-title">Zone 3</span><div class="fault-grid"><div class="fault-domain" data-fd="1"><small>FD1</small><div class="vm-slot" data-slot="9"></div></div><div class="fault-domain" data-fd="2"><small>FD2</small><div class="vm-slot" data-slot="10"></div></div><div class="fault-domain" data-fd="3"><small>FD3</small><div class="vm-slot" data-slot="11"></div></div></div></div>
+        </div>
+        <div class="traffic-bar"><span>Traffic</span><div class="traffic-meter"><i id="trafficFill"></i></div><b id="trafficLabel">Normal 45%</b><button class="sim-btn" id="trafficSpike">Simulate spike</button></div>
+      </div>
+      <div class="failure-row">
+        <span class="scenario-label">SIMULATE FAILURE</span>
+        <button class="failure-btn active" data-failure="none">Healthy</button>
+        <button class="failure-btn" data-failure="rack">Rack / host</button>
+        <button class="failure-btn" data-failure="maintenance">Planned maintenance</button>
+        <button class="failure-btn" data-failure="zone">Zone outage</button>
+        <button class="sim-btn primary" id="runFailure">Run simulation</button>
+      </div>
+      <div class="result-strip"><span class="result-lamp" id="resultLamp"></span><div><small>RESULT</small><strong id="resultTitle">Architecture healthy</strong><p id="resultText">เลือก failure แล้วกด Run simulation เพื่อดูว่า workload ยังให้บริการได้หรือไม่</p></div></div>
+    </div>
+    <aside class="compute-side">
+      <div class="side-card"><span class="eyebrow">decision</span><h3 id="decisionTitle">Availability Set</h3><p id="decisionBody"></p><div class="score-list"><div><span>Hardware fault</span><b id="scoreRack">✓</b></div><div><span>Zone failure</span><b id="scoreZone">—</b></div><div><span>Autoscale</span><b id="scoreScale">—</b></div></div></div>
+      <div class="side-card purple"><span class="eyebrow">EXAM TRAP</span><p id="trapText"></p></div>
+      <div class="side-card"><span class="eyebrow">MUST REMEMBER</span><strong id="memoryRule"></strong><p id="memoryText"></p></div>
+    </aside>
+  </section>
+  <section class="lab-panel compare-section">
+    <div class="panel-head"><div><div class="eyebrow">fast compare</div><h2>Availability Set vs Zones vs VMSS</h2></div></div>
+    <div class="compute-compare">
+      <button class="compare-card" data-pick="avset"><span>AVAILABILITY SET</span><b>Fault + update domains</b><ul><li>กระจาย VM ข้าม fault domains</li><li>planned maintenance แยก update domains</li><li>ไม่ใช่ zone protection</li></ul></button>
+      <button class="compare-card" data-pick="zones"><span>AVAILABILITY ZONES</span><b>Datacenter isolation</b><ul><li>zones แยก power/network/cooling</li><li>วาง ≥2 instances ข้าม zones</li><li>ไม่มี autoscale โดยตัวมันเอง</li></ul></button>
+      <button class="compare-card" data-pick="vmss"><span>VM SCALE SET</span><b>Manage + scale a VM fleet</b><ul><li>autoscale ตาม metric/schedule</li><li>Flexible orchestration แนะนำ</li><li>zone-spanning = scale + zone resilience</li></ul></button>
+    </div>
+  </section>
+  <section class="lab-panel challenge-section" id="challengeSection">
+    <div class="panel-head"><div><div class="eyebrow">exam challenge</div><h2>เลือก architecture จาก requirement</h2></div><span id="challengeScore" class="lab-step">0 / 4</span></div>
+    <div class="challenge-card"><p id="challengeQuestion"></p><div id="challengeAnswers" class="challenge-answers"></div><div id="challengeFeedback" class="challenge-feedback">เลือกคำตอบก่อน</div><div class="challenge-actions"><button class="sim-btn" id="prevChallenge">←</button><button class="sim-btn" id="nextChallenge">Next →</button></div></div>
+  </section>
+  <div class="lab-footer-nav"><button class="sim-btn" id="prevStep">← Previous</button><div class="lesson-progress"><i id="lessonProgress"></i></div><button class="sim-btn primary" id="nextStep">Next →</button></div>
+</main>
+<script src="assets/compute-lab.js"></script>
+</body>
+</html>
