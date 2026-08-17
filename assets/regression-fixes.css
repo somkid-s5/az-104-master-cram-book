@@ -1,0 +1,15 @@
+@media(max-width:820px){
+  .cram-layout{min-width:0}
+  .cram-section{min-width:0;max-width:100%;overflow-x:auto;padding:15px 12px}
+  .cram-section h1,.cram-section h2,.cram-section h3{overflow-wrap:anywhere;word-break:break-word}
+  .cram-section table{min-width:680px}
+}
+@media(max-width:760px){
+  .recovery-lab-body .backup-stage[style*="display: grid"],
+  .recovery-lab-body .asr-stage[style*="display: grid"]{display:flex!important;flex-direction:column!important}
+  .recovery-lab-body .backup-stage,
+  .recovery-lab-body .asr-stage{max-width:100%;min-width:0}
+  .recovery-lab-body .vm-card,
+  .recovery-lab-body .vault-card,
+  .recovery-lab-body .region-card{width:100%;max-width:100%}
+}
