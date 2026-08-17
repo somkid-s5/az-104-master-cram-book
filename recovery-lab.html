@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="th" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Backup vs Site Recovery Visual Lab • AZ-104</title>
+<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/lab.css">
+<link rel="stylesheet" href="assets/recovery-lab.css">
+</head>
+<body class="lab-body recovery-lab-body">
+<header class="lab-topbar">
+  <a class="lab-back" href="monitoring.html">← Monitoring & Recovery</a>
+  <div class="lab-title-wrap"><span class="lab-kicker">INTERACTIVE LESSON</span><strong>Backup vs Site Recovery Visual Lab</strong></div>
+  <div class="lab-top-actions"><span id="stepCounter" class="lab-step">1 / 6</span><button class="icon-btn" id="themeToggle">◐</button></div>
+</header>
+
+<aside class="lab-rail" aria-label="Lesson sections">
+  <div class="rail-brand">AZ-104 VISUAL LAB</div>
+  <button class="rail-item active" data-step="0"><span>01</span><b>Choose Recovery</b></button>
+  <button class="rail-item" data-step="1"><span>02</span><b>Azure Backup</b></button>
+  <button class="rail-item" data-step="2"><span>03</span><b>Site Recovery</b></button>
+  <button class="rail-item" data-step="3"><span>04</span><b>Failover Flow</b></button>
+  <button class="rail-item" data-step="4"><span>05</span><b>Failback Flow</b></button>
+  <button class="rail-item" data-step="5"><span>06</span><b>Exam Check</b></button>
+  <div class="rail-tip">Mental model: Restore old data = Backup • Keep workload running after site/region disaster = Site Recovery</div>
+</aside>
+
+<main class="lab-main">
+  <section class="lab-panel lab-controls-panel">
+    <div class="panel-head">
+      <div>
+        <div class="eyebrow">WHAT HAPPENED?</div>
+        <h1 id="lessonTitle">Choose the recovery tool</h1>
+        <p id="lessonSubtitle">เลือกเหตุการณ์ แล้วดูว่าควร Restore หรือ Failover</p>
+      </div>
+      <div class="recovery-tabs">
+        <button class="recovery-btn active" data-mode="backup">Backup</button>
+        <button class="recovery-btn" data-mode="asr">Site Recovery</button>
+      </div>
+    </div>
+    <div class="scenario-row">
+      <span class="scenario-label">SIMULATE</span>
+      <button class="scenario-btn active" data-scenario="file">File deleted</button>
+      <button class="scenario-btn" data-scenario="vm">VM deleted</button>
+      <button class="scenario-btn" data-scenario="corrupt">Data corruption</button>
+      <button class="scenario-btn" data-scenario="region">Region outage</button>
+      <button class="scenario-btn" data-scenario="planned">Planned migration</button>
+      <button class="btn primary run-btn" id="runRecovery">▶ Run recovery</button>
+    </div>
+  </section>
+
+  <section class="recovery-workspace">
+    <article class="diagram-card recovery-diagram-card">
+      <div class="diagram-head">
+        <div><span class="diagram-label">RECOVERY MODEL</span><h2 id="diagramTitle">Restore a recovery point</h2></div>
+        <div class="legend"><span><i class="dot path-ok"></i>active</span><span><i class="dot path-warn"></i>historical point</span><span><i class="dot path-fail"></i>failed site</span></div>
+      </div>
+
+      <div class="backup-stage" id="backupStage">
+        <div class="vm-card source-vm" id="backupSource">
+          <small>PROTECTED WORKLOAD</small><strong>Azure VM</strong><span>OS + Data disks</span>
+          <div class="mini-file-grid"><i></i><i></i><i></i><i></i></div>
+        </div>
+        <div class="backup-arrow"><span>snapshot / backup policy</span><i></i><b>›</b></div>
+        <div class="vault-card">
+          <small>RECOVERY SERVICES VAULT</small><strong>Recovery Points</strong>
+          <div class="rp-list">
+            <button class="rp active" data-rp="latest"><b>Latest</b><span>10:00</span></button>
+            <button class="rp" data-rp="hour"><b>Earlier</b><span>08:00</span></button>
+            <button class="rp" data-rp="day"><b>Yesterday</b><span>D-1</span></button>
+          </div>
+        </div>
+        <div class="restore-arrow"><span>restore selected point</span><i></i><b>›</b></div>
+        <div class="vm-card restore-vm">
+          <small>RESTORE TARGET</small><strong id="restoreTargetTitle">Original / New VM</strong><span id="restoreTargetDetail">Return data to an earlier point in time</span>
+          <div class="restore-badge" id="restoreBadge">RESTORE</div>
+        </div>
+      </div>
+
+      <div class="asr-stage" id="asrStage">
+        <div class="region-card primary-region">
+          <small>PRIMARY REGION</small><strong>Region A</strong>
+          <div class="site-vms"><i>VM1</i><i>VM2</i></div>
+          <span id="primaryState">Production running</span>
+        </div>
+        <div class="replication-lane">
+          <span>continuous replication</span>
+          <div class="replication-line"><i></i><b>›</b></div>
+          <small id="replicationState">Protected</small>
+        </div>
+        <div class="region-card secondary-region">
+          <small>RECOVERY REGION</small><strong>Region B</strong>
+          <div class="site-vms standby"><i>VM1'</i><i>VM2'</i></div>
+          <span id="secondaryState">Replicated / standby</span>
+        </div>
+      </div>
+
+      <div class="timeline-card">
+        <div class="timeline-title"><span>FLOW</span><strong id="flowTitle">Backup → Recovery point → Restore</strong></div>
+        <div class="timeline" id="timeline"></div>
+      </div>
+
+      <div class="recovery-readout">
+        <div class="recovery-lamp" id="recoveryLamp"></div>
+        <div><span>RESULT</span><strong id="recoveryResult">Ready</strong><p id="recoveryExplain">กด Run recovery เพื่อดูขั้นตอน</p></div>
+      </div>
+    </article>
+
+    <aside class="recovery-status-card">
+      <span class="explain-eyebrow">EXAM DECISION</span>
+      <h3 id="decisionTitle">Azure Backup</h3>
+      <p id="decisionBody">เหมาะกับ point-in-time recovery เมื่อข้อมูล/VM ถูกลบ เสียหาย หรืออยากย้อนกลับไป recovery point ก่อนหน้า</p>
+
+      <div class="decision-list">
+        <div class="decision-row"><span>GOAL</span><b id="goalValue">Restore data</b></div>
+        <div class="decision-row"><span>PRIMARY CONCEPT</span><b id="conceptValue">Recovery point</b></div>
+        <div class="decision-row"><span>MAIN ACTION</span><b id="actionValue">Restore</b></div>
+        <div class="decision-row"><span>BCDR ROLE</span><b id="bcdrValue">Data protection</b></div>
+      </div>
+
+      <div class="memory-box">
+        <span>จำไปสอบ</span>
+        <strong id="memoryRule">Backup = “ย้อนข้อมูล” • ASR = “ย้าย workload หนี disaster”</strong>
+      </div>
+      <div class="trap-box">
+        <span>EXAM TRAP</span>
+        <p id="trapText">Backup ไม่ใช่ตัวเลือกหลักสำหรับ orchestration ของ regional failover; Site Recovery ถูกออกแบบมาสำหรับ replication + failover/failback.</p>
+      </div>
+    </aside>
+  </section>
+
+  <section class="flow-section">
+    <div class="section-head-row">
+      <div><span class="diagram-label">ASR LIFECYCLE</span><h2>Failover → Commit → Reprotect → Failback</h2></div>
+    </div>
+    <div class="lifecycle-grid">
+      <button class="life-card" data-life="replicate"><span>01</span><b>Replicate</b><small>Primary → Recovery region</small></button>
+      <button class="life-card" data-life="failover"><span>02</span><b>Failover</b><small>Boot workload at target recovery point</small></button>
+      <button class="life-card" data-life="commit"><span>03</span><b>Commit</b><small>Finalize the chosen recovery point</small></button>
+      <button class="life-card" data-life="reprotect"><span>04</span><b>Reprotect</b><small>Reverse replication direction</small></button>
+      <button class="life-card" data-life="failback"><span>05</span><b>Failback</b><small>Move workload back to primary</small></button>
+    </div>
+    <div class="life-explain" id="lifeExplain">เลือกขั้นตอนเพื่อดูความหมาย</div>
+  </section>
+
+  <section class="compare-section">
+    <div class="section-head-row"><div><span class="diagram-label">FAST COMPARE</span><h2>Backup vs Site Recovery</h2></div></div>
+    <div class="compare-grid">
+      <button class="compare-card" data-compare="backup"><span>AZURE BACKUP</span><b>Point-in-time recovery</b><ul><li>recovery points in vault</li><li>restore files/disks/VM</li><li>retention + backup policy</li></ul></button>
+      <button class="compare-card" data-compare="asr"><span>SITE RECOVERY</span><b>Disaster recovery</b><ul><li>continuous replication</li><li>test failover / failover</li><li>commit + reprotect + failback</li></ul></button>
+      <button class="compare-card" data-compare="test"><span>TEST FAILOVER</span><b>DR drill without production cutover</b><ul><li>validate recovery plan</li><li>isolated test network recommended</li><li>ongoing protection can continue</li></ul></button>
+      <button class="compare-card" data-compare="soft"><span>SOFT DELETE</span><b>Protect backup data from deletion</b><ul><li>built-in for vaults</li><li>deleted backup item can be undeleted</li><li>restore after undelete</li></ul></button>
+    </div>
+  </section>
+
+  <section class="challenge-section" id="challengeSection">
+    <div class="challenge-card">
+      <span class="diagram-label">MINI EXAM</span>
+      <h2 id="challengeTitle">Scenario 1 / 5</h2>
+      <p class="challenge-q" id="challengeQ"></p>
+      <div class="answer-grid" id="answers"></div>
+      <div class="challenge-feedback" id="challengeFeedback">เลือกคำตอบ แล้วดูเหตุผล</div>
+      <button class="btn" id="nextChallenge">Next scenario →</button>
+    </div>
+  </section>
+</main>
+
+<nav class="lesson-nav">
+  <button class="btn" id="prevStep">← Previous</button>
+  <div class="lesson-progress"><i id="lessonProgress"></i></div>
+  <button class="btn primary" id="nextStep">Next →</button>
+</nav>
+
+<script src="assets/recovery-lab.js"></script>
+</body>
+</html>
