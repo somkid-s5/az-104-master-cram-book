@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="th" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Storage Redundancy Visualizer • AZ-104</title>
+<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/lab.css">
+<link rel="stylesheet" href="assets/storage-lab.css">
+</head>
+<body class="lab-body storage-lab-body">
+<header class="lab-topbar">
+  <a class="lab-back" href="storage.html">← Storage</a>
+  <div class="lab-title-wrap"><span class="lab-kicker">INTERACTIVE LESSON</span><strong>Storage Redundancy Visualizer</strong></div>
+  <div class="lab-top-actions"><span id="stepCounter" class="lab-step">1 / 5</span><button class="icon-btn" id="themeToggle">◐</button></div>
+</header>
+<aside class="lab-rail" aria-label="Lesson sections">
+  <div class="rail-brand">AZ-104 VISUAL LAB</div>
+  <button class="rail-item active" data-step="0"><span>01</span><b>Replication Map</b></button>
+  <button class="rail-item" data-step="1"><span>02</span><b>Zone Failure</b></button>
+  <button class="rail-item" data-step="2"><span>03</span><b>Region Failure</b></button>
+  <button class="rail-item" data-step="3"><span>04</span><b>Read Access</b></button>
+  <button class="rail-item" data-step="4"><span>05</span><b>Challenge</b></button>
+  <div class="rail-tip">เลือก redundancy + failure แล้วดูว่า Data / Read / Write ยังทำงานหรือไม่</div>
+</aside>
+<main class="lab-main">
+  <section class="lab-panel lab-controls-panel">
+    <div class="panel-head">
+      <div><div class="eyebrow">ทดลองความทนทาน</div><h1 id="lessonTitle">Replication map</h1><p id="lessonSubtitle">เลือก redundancy แล้วดูว่าข้อมูลถูกวางไว้ตรงไหน</p></div>
+      <div class="redundancy-tabs" id="redundancyTabs">
+        <button class="redundancy-btn active" data-sku="LRS">LRS</button>
+        <button class="redundancy-btn" data-sku="ZRS">ZRS</button>
+        <button class="redundancy-btn" data-sku="GRS">GRS</button>
+        <button class="redundancy-btn" data-sku="RA-GRS">RA-GRS</button>
+        <button class="redundancy-btn" data-sku="GZRS">GZRS</button>
+        <button class="redundancy-btn" data-sku="RA-GZRS">RA-GZRS</button>
+      </div>
+    </div>
+    <div class="failure-row">
+      <span class="failure-label">SIMULATE FAILURE</span>
+      <button class="failure-btn active" data-failure="none">Normal</button>
+      <button class="failure-btn" data-failure="node">Node / disk</button>
+      <button class="failure-btn" data-failure="zone">Datacenter / zone</button>
+      <button class="failure-btn" data-failure="region">Primary region</button>
+      <button class="btn primary" id="failoverBtn">Initiate failover</button>
+    </div>
+  </section>
+
+  <section class="storage-workspace">
+    <div class="diagram-card storage-diagram-card">
+      <div class="diagram-head">
+        <div><span class="diagram-label">AZURE STORAGE TOPOLOGY</span><h2 id="diagramTitle">LRS • Local redundancy</h2></div>
+        <div class="replication-legend"><span><i class="replica-dot sync"></i> synchronous</span><span><i class="replica-dot async"></i> asynchronous</span></div>
+      </div>
+      <div class="regions-stage">
+        <article class="region primary-region" id="primaryRegion">
+          <header><span>PRIMARY REGION</span><strong>East US</strong><em id="primaryState">HEALTHY</em></header>
+          <div class="zones" id="primaryZones">
+            <div class="zone" data-zone="1"><small>ZONE / DC 1</small><div class="replicas" id="z1"></div></div>
+            <div class="zone" data-zone="2"><small>ZONE 2</small><div class="replicas" id="z2"></div></div>
+            <div class="zone" data-zone="3"><small>ZONE 3</small><div class="replicas" id="z3"></div></div>
+          </div>
+        </article>
+        <div class="geo-link" id="geoLink"><span>ASYNC GEO REPLICATION</span><i></i><b>→</b></div>
+        <article class="region secondary-region" id="secondaryRegion">
+          <header><span>SECONDARY REGION</span><strong>Paired region</strong><em id="secondaryState">NOT USED</em></header>
+          <div class="secondary-dc"><small>SECONDARY DC</small><div class="replicas" id="secondaryReplicas"></div></div>
+          <div class="secondary-endpoint" id="secondaryEndpoint">secondary endpoint • <b>not readable</b></div>
+        </article>
+      </div>
+      <div class="data-flow-note" id="flowNote">LRS keeps 3 synchronous copies inside one datacenter.</div>
+    </div>
+
+    <aside class="storage-status-card">
+      <div class="explain-eyebrow">CURRENT RESULT</div>
+      <h3 id="resultTitle">LRS under normal operation</h3>
+      <p id="resultBody"></p>
+      <div class="status-grid">
+        <div class="status-item" id="durableStatus"><span>DATA DURABLE</span><b>YES</b></div>
+        <div class="status-item" id="readStatus"><span>PRIMARY READ</span><b>YES</b></div>
+        <div class="status-item" id="writeStatus"><span>WRITE</span><b>YES</b></div>
+        <div class="status-item" id="secondaryReadStatus"><span>SECONDARY READ</span><b>NO</b></div>
+      </div>
+      <div class="memory-box"><span>จำไปสอบ</span><strong id="memoryRule">LRS = 1 datacenter</strong></div>
+      <div class="trap-box"><span>EXAM TRAP</span><p id="trapText"></p></div>
+      <div class="rpo-box"><span>GEO REPLICATION</span><p id="rpoText">ไม่มี secondary region</p></div>
+    </aside>
+  </section>
+
+  <section class="compare-section">
+    <div class="section-head-row"><div><div class="eyebrow">Fast compare</div><h2>เห็นต่างกันใน 10 วินาที</h2></div><span class="muted">คลิกการ์ดเพื่อสลับ topology</span></div>
+    <div class="sku-grid" id="skuGrid"></div>
+  </section>
+
+  <section class="scenario-section">
+    <div class="section-head-row"><div><div class="eyebrow">Scenario presets</div><h2>โจทย์ที่ข้อสอบชอบถาม</h2></div></div>
+    <div class="scenario-grid storage-scenarios">
+      <button class="scenario-card" data-scenario="zone"><span class="scenario-no">01</span><b>ต้อง read/write ต่อได้แม้ Availability Zone หนึ่งล่ม</b><small>ไม่ต้องป้องกัน region disaster</small></button>
+      <button class="scenario-card" data-scenario="region"><span class="scenario-no">02</span><b>ต้องมีสำเนาอีก Region และ primary ใช้ Zones</b><small>เน้น durability + zone resilience + DR</small></button>
+      <button class="scenario-card" data-scenario="secondary-read"><span class="scenario-no">03</span><b>Primary region มีปัญหา แต่แอปต้องอ่านข้อมูลจาก secondary ได้ก่อน failover</b><small>ต้องมี Read Access prefix</small></button>
+    </div>
+  </section>
+
+  <section class="challenge-section" id="challengeSection">
+    <div class="challenge-card">
+      <div class="eyebrow">Mini challenge</div>
+      <h2>เลือก redundancy ที่ตรง requirement ที่สุด</h2>
+      <p class="challenge-q">แอปต้อง <b>ทน Availability Zone failure ใน primary</b>, มี copy ที่ <b>secondary region</b>, และต้อง <b>อ่าน secondary endpoint ได้</b> โดยไม่รอ account failover ควรใช้?</p>
+      <div class="answer-grid" id="answerGrid">
+        <button data-answer="A">A. ZRS</button><button data-answer="B">B. GRS</button><button data-answer="C">C. GZRS</button><button data-answer="D">D. RA-GZRS</button>
+      </div>
+      <div class="challenge-feedback" id="challengeFeedback">เลือกคำตอบเพื่อดูเหตุผล</div>
+    </div>
+  </section>
+
+  <div class="lesson-nav"><button class="btn" id="prevStep">← Prev</button><div class="lesson-progress"><i id="lessonProgress"></i></div><button class="btn primary" id="nextStep">Next →</button></div>
+</main>
+<script src="assets/storage-lab.js"></script>
+</body></html>
