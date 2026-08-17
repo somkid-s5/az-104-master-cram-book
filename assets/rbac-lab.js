@@ -37,6 +37,9 @@ function detail(){
   return {badge:lock,title:'Locks protect resources from changes',body:lock==='CanNotDelete'?`CanNotDelete ที่ ${labels[scope]} ป้องกันการลบ resource ที่ scope นี้และด้านล่าง แต่ยังแก้ไข resource ได้.`:`ReadOnly ที่ ${labels[scope]} บล็อกการ update และ delete ใน management plane สำหรับ scope นี้และด้านล่าง.`,memory:'CanNotDelete = แก้ได้ แต่ลบไม่ได้',trap:'Lock ใช้ป้องกัน resource ไม่ใช่ grant/deny สิทธิ์แบบ RBAC'};
 }
 function render(){
+  if(state.step===1)setMode('rbac',false);
+  if(state.step===2)setMode('policy',false);
+  if(state.step===3)setMode('lock',false);
   const d=detail(),sRank=rank[state.scope];
   document.body.dataset.mode=state.mode;
   nodes.forEach(n=>{
@@ -56,9 +59,6 @@ function render(){
   $('stepCounter').textContent=`${state.step+1} / 5`;
   $('lessonProgress').style.width=`${(state.step+1)*20}%`;
   rail.forEach((b,i)=>b.classList.toggle('active',i===state.step));
-  if(state.step===1)setMode('rbac',false);
-  if(state.step===2)setMode('policy',false);
-  if(state.step===3)setMode('lock',false);
   if(state.step===4)$('challengeSection').scrollIntoView({behavior:'smooth',block:'center'});
   localStorage.setItem('az104-rbac-lab-v1',JSON.stringify({mode:state.mode,scope:state.scope,step:state.step}));
 }
