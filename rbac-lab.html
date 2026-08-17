@@ -6,18 +6,13 @@
 <title>RBAC / Policy / Locks Interactive Lab • AZ-104</title>
 <link rel="stylesheet" href="assets/app.css">
 <link rel="stylesheet" href="assets/lab.css">
+<link rel="stylesheet" href="assets/lab-patch.css">
 </head>
 <body class="lab-body">
 <header class="lab-topbar">
   <a class="lab-back" href="identity.html">← Identity & Governance</a>
-  <div class="lab-title-wrap">
-    <span class="lab-kicker">INTERACTIVE LESSON</span>
-    <strong>RBAC / Policy / Locks</strong>
-  </div>
-  <div class="lab-top-actions">
-    <span id="stepCounter" class="lab-step">1 / 5</span>
-    <button class="icon-btn" id="themeToggle" aria-label="Toggle theme">◐</button>
-  </div>
+  <div class="lab-title-wrap"><span class="lab-kicker">INTERACTIVE LESSON</span><strong>RBAC / Policy / Locks</strong></div>
+  <div class="lab-top-actions"><span id="stepCounter" class="lab-step">1 / 5</span><button class="icon-btn" id="themeToggle" aria-label="Toggle theme">◐</button></div>
 </header>
 <aside class="lab-rail" aria-label="Lesson sections">
   <div class="rail-brand">AZ-104 VISUAL LAB</div>
@@ -31,122 +26,43 @@
 <main class="lab-main">
   <section class="lab-panel lab-controls-panel">
     <div class="panel-head">
-      <div>
-        <div class="eyebrow">ทดลองด้วยตัวเอง</div>
-        <h1 id="lessonTitle">Scope inheritance</h1>
-        <p id="lessonSubtitle">เลือกเครื่องมือและ scope แล้วดูว่า resource ไหนได้รับผลกระทบ</p>
-      </div>
-      <div class="mode-tabs" role="tablist">
-        <button class="mode-btn active" data-mode="rbac">RBAC</button>
-        <button class="mode-btn" data-mode="policy">Policy</button>
-        <button class="mode-btn" data-mode="lock">Lock</button>
-      </div>
+      <div><div class="eyebrow">ทดลองด้วยตัวเอง</div><h1 id="lessonTitle">Scope inheritance</h1><p id="lessonSubtitle">เลือกเครื่องมือและ scope แล้วดูว่า resource ไหนได้รับผลกระทบ</p></div>
+      <div class="mode-tabs" role="tablist"><button class="mode-btn active" data-mode="rbac">RBAC</button><button class="mode-btn" data-mode="policy">Policy</button><button class="mode-btn" data-mode="lock">Lock</button></div>
     </div>
     <div class="control-grid">
-      <label>
-        <span>Scope</span>
-        <select id="scopeSelect">
-          <option value="mg">Management Group</option>
-          <option value="sub" selected>Subscription</option>
-          <option value="rg">Resource Group</option>
-          <option value="res">Resource</option>
-        </select>
-      </label>
-      <label id="rbacControl">
-        <span>Role</span>
-        <select id="roleSelect">
-          <option value="Reader">Reader</option>
-          <option value="Contributor" selected>Contributor</option>
-          <option value="Owner">Owner</option>
-        </select>
-      </label>
-      <label id="policyControl" hidden>
-        <span>Policy</span>
-        <select id="policySelect">
-          <option value="allowed-locations">Allowed locations</option>
-          <option value="require-tag">Require CostCenter tag</option>
-          <option value="deny-public-ip">Deny public IP</option>
-        </select>
-      </label>
-      <label id="lockControl" hidden>
-        <span>Lock type</span>
-        <select id="lockSelect">
-          <option value="CanNotDelete">CanNotDelete</option>
-          <option value="ReadOnly">ReadOnly</option>
-        </select>
-      </label>
+      <label><span>Scope</span><select id="scopeSelect"><option value="mg">Management Group</option><option value="sub" selected>Subscription</option><option value="rg">Resource Group</option><option value="res">Resource</option></select></label>
+      <label id="rbacControl"><span>Role</span><select id="roleSelect"><option value="Reader">Reader</option><option value="Contributor" selected>Contributor</option><option value="Owner">Owner</option></select></label>
+      <label id="policyControl" hidden><span>Policy</span><select id="policySelect"><option value="allowed-locations">Allowed locations</option><option value="require-tag">Require CostCenter tag</option><option value="deny-public-ip">Deny public IP</option></select></label>
+      <label id="lockControl" hidden><span>Lock type</span><select id="lockSelect"><option value="CanNotDelete">CanNotDelete</option><option value="ReadOnly">ReadOnly</option></select></label>
       <button id="applyBtn" class="btn primary apply-btn">Apply to diagram →</button>
     </div>
   </section>
   <section class="lab-workspace">
     <div class="diagram-card">
-      <div class="diagram-head">
-        <div>
-          <span class="diagram-label">AZURE SCOPE HIERARCHY</span>
-          <h2>ผลกระทบไหลลงตาม Scope</h2>
-        </div>
-        <div class="legend">
-          <span><i class="dot selected"></i> Assigned here</span>
-          <span><i class="dot inherited"></i> Inherited / affected</span>
-        </div>
-      </div>
+      <div class="diagram-head"><div><span class="diagram-label">AZURE SCOPE HIERARCHY</span><h2>ผลกระทบไหลลงตาม Scope</h2></div><div class="legend"><span><i class="dot selected"></i> Assigned here</span><span><i class="dot inherited"></i> Inherited / affected</span></div></div>
       <div class="scope-stack" id="scopeStack">
-        <article class="scope-node" data-scope="mg">
-          <div class="scope-icon">MG</div><div><small>MANAGEMENT GROUP</small><strong>corp-root</strong></div><span class="effect-badge"></span>
-        </article>
+        <article class="scope-node" data-scope="mg"><div class="scope-icon">MG</div><div><small>MANAGEMENT GROUP</small><strong>corp-root</strong></div><span class="effect-badge"></span></article>
         <div class="scope-line"><i></i></div>
-        <article class="scope-node" data-scope="sub">
-          <div class="scope-icon">SUB</div><div><small>SUBSCRIPTION</small><strong>Production Subscription</strong></div><span class="effect-badge"></span>
-        </article>
+        <article class="scope-node" data-scope="sub"><div class="scope-icon">SUB</div><div><small>SUBSCRIPTION</small><strong>Production Subscription</strong></div><span class="effect-badge"></span></article>
         <div class="scope-line"><i></i></div>
-        <article class="scope-node" data-scope="rg">
-          <div class="scope-icon">RG</div><div><small>RESOURCE GROUP</small><strong>rg-web-prod</strong></div><span class="effect-badge"></span>
-        </article>
+        <article class="scope-node" data-scope="rg"><div class="scope-icon">RG</div><div><small>RESOURCE GROUP</small><strong>rg-web-prod</strong></div><span class="effect-badge"></span></article>
         <div class="scope-line"><i></i></div>
-        <article class="scope-node" data-scope="res">
-          <div class="scope-icon">VM</div><div><small>RESOURCE</small><strong>vm-web-01</strong></div><span class="effect-badge"></span>
-        </article>
+        <article class="scope-node" data-scope="res"><div class="scope-icon">VM</div><div><small>RESOURCE</small><strong>vm-web-01</strong></div><span class="effect-badge"></span></article>
       </div>
       <div class="flow-note" id="flowNote">Contributor ที่ Subscription → Resource Group และ VM ด้านล่างได้รับสิทธิ์ผ่าน inheritance</div>
     </div>
-    <aside class="explain-card">
-      <div class="explain-eyebrow">WHAT HAPPENS?</div>
-      <h3 id="resultTitle">RBAC controls who can do what</h3>
-      <p id="resultBody"></p>
-      <div class="memory-box"><span>จำไปสอบ</span><strong id="memoryRule">WHO + ROLE + SCOPE</strong></div>
-      <div class="trap-box"><span>EXAM TRAP</span><p id="trapText">Contributor จัดการ resource ได้ แต่ไม่สามารถมอบ RBAC role ให้คนอื่นได้</p></div>
-    </aside>
+    <aside class="explain-card"><div class="explain-eyebrow">WHAT HAPPENS?</div><h3 id="resultTitle">RBAC controls who can do what</h3><p id="resultBody"></p><div class="memory-box"><span>จำไปสอบ</span><strong id="memoryRule">WHO + ROLE + SCOPE</strong></div><div class="trap-box"><span>EXAM TRAP</span><p id="trapText">Contributor จัดการ resource ได้ แต่ไม่สามารถมอบ RBAC role ให้คนอื่นได้</p></div></aside>
   </section>
   <section class="scenario-section">
-    <div class="section-head-row">
-      <div><div class="eyebrow">Scenario presets</div><h2>โจทย์แบบที่ข้อสอบชอบถาม</h2></div>
-      <span class="muted">คลิกโจทย์ แล้วดู diagram เปลี่ยนตามคำตอบ</span>
-    </div>
+    <div class="section-head-row"><div><div class="eyebrow">Scenario presets</div><h2>โจทย์แบบที่ข้อสอบชอบถาม</h2></div><span class="muted">คลิกโจทย์ แล้วดู diagram เปลี่ยนตามคำตอบ</span></div>
     <div class="scenario-grid">
       <button class="scenario-card" data-scenario="rg-contributor"><span class="scenario-no">01</span><b>ทีม App ต้องจัดการ VM เฉพาะ rg-web-prod</b><small>ไม่ต้องให้สิทธิ์กับ Resource Group อื่น</small></button>
       <button class="scenario-card" data-scenario="prevent-delete"><span class="scenario-no">02</span><b>กันคนลบ Production โดยไม่ตั้งใจ</b><small>ยังต้องแก้ config ได้ตามปกติ</small></button>
       <button class="scenario-card" data-scenario="location-policy"><span class="scenario-no">03</span><b>บังคับทุก resource ใน Subscription อยู่ Region ที่อนุญาต</b><small>ต้อง enforce ไม่ใช่แค่ report</small></button>
     </div>
   </section>
-  <section class="challenge-section" id="challengeSection">
-    <div class="challenge-card">
-      <div class="eyebrow">Mini challenge</div>
-      <h2>ข้อไหนตรง requirement ที่สุด?</h2>
-      <p class="challenge-q">ต้องการให้ทีม Operations แก้ไข VM ใน <b>rg-web-prod</b> ได้ แต่ห้ามเปลี่ยนสิทธิ์การเข้าถึงของคนอื่น ควรใช้แบบใด?</p>
-      <div class="answer-grid" id="answerGrid">
-        <button data-answer="A">A. Owner @ Subscription</button>
-        <button data-answer="B">B. Contributor @ Resource Group</button>
-        <button data-answer="C">C. Reader @ Resource Group</button>
-        <button data-answer="D">D. CanNotDelete lock @ Resource Group</button>
-      </div>
-      <div class="challenge-feedback" id="challengeFeedback">เลือกคำตอบเพื่อดูเหตุผล</div>
-    </div>
-  </section>
-  <div class="lesson-nav">
-    <button class="btn" id="prevStep">← Prev</button>
-    <div class="lesson-progress"><i id="lessonProgress"></i></div>
-    <button class="btn primary" id="nextStep">Next →</button>
-  </div>
+  <section class="challenge-section" id="challengeSection"><div class="challenge-card"><div class="eyebrow">Mini challenge</div><h2>ข้อไหนตรง requirement ที่สุด?</h2><p class="challenge-q">ต้องการให้ทีม Operations แก้ไข VM ใน <b>rg-web-prod</b> ได้ แต่ห้ามเปลี่ยนสิทธิ์การเข้าถึงของคนอื่น ควรใช้แบบใด?</p><div class="answer-grid" id="answerGrid"><button data-answer="A">A. Owner @ Subscription</button><button data-answer="B">B. Contributor @ Resource Group</button><button data-answer="C">C. Reader @ Resource Group</button><button data-answer="D">D. CanNotDelete lock @ Resource Group</button></div><div class="challenge-feedback" id="challengeFeedback">เลือกคำตอบเพื่อดูเหตุผล</div></div></section>
+  <div class="lesson-nav"><button class="btn" id="prevStep">← Prev</button><div class="lesson-progress"><i id="lessonProgress"></i></div><button class="btn primary" id="nextStep">Next →</button></div>
 </main>
 <script src="assets/rbac-lab.js"></script>
 </body>
