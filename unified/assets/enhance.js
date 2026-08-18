@@ -1,47 +1,51 @@
 (()=>{
+  const JOURNEYS={
+    identity:{title:'Identity & Governance',sub:'Identity → Permission → Governance → Challenge',badge:'20–25%',memory:[['ACCESS','WHO + ROLE + SCOPE'],['GOVERNANCE','RBAC ให้สิทธิ์ • Policy บังคับ state • Lock กันแก้/ลบ'],['EXAM','Least privilege + narrowest scope']],stages:[
+      ['01 FOUNDATION','Tenant & Identity mental model','Authentication vs Authorization, Tenant vs Subscription และ Entra Role vs Azure RBAC','#/note/entra-id','อ่าน Deep Note →'],
+      ['02 IDENTITIES','Users & Groups','User/Guest, Groups, properties, licenses และ SSPR โดยมอง lifecycle เป็นหลัก','#/topic/identity/0','เริ่มหัวข้อ →'],
+      ['03 ACCESS','RBAC & Scope','คิดเป็น WHO + ROLE + SCOPE แล้วดู inheritance/effective access','#/topic/identity/5','เรียน RBAC →'],
+      ['04 GOVERNANCE','Policy, Locks & Tags','แยก permission, compliance และ delete protection ให้ชัด','#/visual/rbac','เปิด Visual Lab →'],
+      ['05 APPLY','Challenge CH-01','Least privilege + wrong scope + policy denial + lock inheritance แบบ break-fix','#/challenge/1','ลงมือ Challenge →']]},
+    storage:{title:'Storage',sub:'Account → Access → Data protection → Network → Challenge',badge:'15–20%',memory:[['ACCESS','Identity/permission ผ่าน ≠ Network ผ่าน'],['REDUNDANCY','Zone requirement → ZRS • Region copy → GRS/GZRS'],['RECOVERY','Versioning/Soft Delete ช่วยกู้ แต่ไม่แทน Backup ทุกกรณี']],stages:[
+      ['01 FOUNDATION','Account & Redundancy','เริ่มจาก StorageV2, redundancy และโจทย์ว่า failure ระดับ Datacenter/Zone/Region','#/visual/storage','ดู Redundancy →'],
+      ['02 ACCESS','Keys, SAS & Identity','แยก management plane กับ data plane แล้วค่อยเลือก Key / SAS / Entra RBAC','#/topic/storage/1','เรียน Access →'],
+      ['03 DATA','Blob, Files & Lifecycle','Blob vs Files, tiers, versioning, snapshots, soft delete และ lifecycle','#/topic/storage/13','เรียน Data services →'],
+      ['04 NETWORK','Firewall & Private Access','Identity ถูกแต่ firewall deny ยังเข้าไม่ได้; แยก Service Endpoint vs Private Endpoint','#/topic/storage/0','เรียน Network →'],
+      ['05 APPLY','Challenge CH-02','สร้าง secure access, revocable SAS, network restriction และ recovery test','#/challenge/2','ลงมือ Challenge →']]},
+    compute:{title:'Compute',sub:'IaC → VM → Availability/Scale → PaaS → Challenge',badge:'20–25%',memory:[['IaC','Build/Validate → What-if → Deploy → Inspect operations'],['HA','Availability Set ≠ Availability Zone • VMSS ≠ zone resilient อัตโนมัติ'],['SCALE','Scale Up = เครื่องแรงขึ้น • Scale Out = instance เพิ่ม']],stages:[
+      ['01 IaC','ARM & Bicep','อ่าน template, parameter, dependency และรู้ลำดับ validate / what-if / deploy','#/topic/compute/0','เริ่ม IaC →'],
+      ['02 VM','VM Core Operations','VM size, disks, encryption at host, move และ lifecycle ของ VM','#/topic/compute/4','เรียน VM →'],
+      ['03 HA + SCALE','Availability & VMSS','จำลอง rack/zone failure และ traffic spike ให้เห็นว่าควรใช้ Set / Zones / VMSS เมื่อไร','#/visual/compute','เปิด VM Visual →'],
+      ['04 PAAS','Containers & App Service','ACR, ACI, Container Apps, App Service plan, slots, networking และ scaling','#/visual/appservice','เปิด App Service →'],
+      ['05 APPLY','CH-03 + CH-04','ซ่อม IaC ก่อน แล้วต่อ Compute/PaaS decisions และ break-fix','#/labs','เปิด Challenge Labs →']]},
+    networking:{title:'Networking',sub:'Topology → Route → Security → DNS/Private/LB → Challenge',badge:'15–20%',memory:[['TROUBLESHOOT','Listener → IP → Route → NSG → DNS → LB'],['ROUTE','Longest prefix ก่อน • prefix เท่ากัน UDR > BGP > System'],['PRIVATE','Service Endpoint ใช้ public endpoint • Private Endpoint มี private IP']],stages:[
+      ['01 FOUNDATION','VNet & Subnet','เข้าใจ address space, subnet และ public/private path ก่อน','#/topic/networking/0','เริ่ม VNet →'],
+      ['02 PATH','Peering & Routing','Peering connected ไม่พอถ้า effective route ผิด; UDR สามารถเปลี่ยน path ได้','#/topic/networking/1','เรียน Path →'],
+      ['03 SECURITY','NSG & ASG','Priority ต่ำกว่าทำก่อน, NSG stateful และต้องดู effective rules','#/topic/networking/5','เรียน Security →'],
+      ['04 TROUBLESHOOT','DNS, Endpoint & Load Balancer','ตาม packet ทีละ checkpoint เพื่อดูว่าตายตรง DNS / Route / NSG / Endpoint / LB','#/visual/networking','เปิด Flow Lab →'],
+      ['05 APPLY','Challenge CH-05','แก้หลาย incident ด้วย evidence-first ไม่สุ่มเปลี่ยน config','#/challenge/5','ลงมือ Gauntlet →']]},
+    monitoring:{title:'Monitor & Recovery',sub:'Signals → Query → Alert → Recovery → Challenge',badge:'10–15%',memory:[['SIGNALS','Metrics มีอัตโนมัติ • Resource logs ต้องมี diagnostic path'],['ALERT','Alert Rule ประเมิน • Action Group ทำ action • Processing Rule ปรับ action'],['RECOVERY','Backup = restore point-in-time • ASR = replicate/failover workload']],stages:[
+      ['01 SIGNALS','Azure Monitor mental model','แยก Activity Log, platform metrics, resource logs และ guest/application data','#/topic/monitoring/0','เริ่ม Monitor →'],
+      ['02 QUERY','Logs & KQL','เรียน query ให้พออ่าน filter, summarize, count และ time bin ได้','#/topic/monitoring/1','เรียน KQL →'],
+      ['03 ALERT','Alerts & Actions','ดู flow Resource → Signal → Alert Rule → Processing Rule → Action Group','#/visual/monitor','เปิด Alert Flow →'],
+      ['04 RECOVERY','Backup & Site Recovery','แยก restore, recovery point, replication, failover, commit, reprotect และ failback','#/visual/recovery','เปิด Recovery Lab →'],
+      ['05 APPLY','Challenge CH-06','สร้าง telemetry evidence chain แล้วพิสูจน์ Backup/Restore/DR readiness','#/challenge/6','ลงมือ Challenge →']]}
+  };
   const CSS=`
   .unified-start-card{margin:18px 0 28px;padding:22px;border:1px solid rgba(59,130,246,.28);border-radius:18px;background:linear-gradient(135deg,rgba(37,99,235,.12),rgba(6,182,212,.06));box-shadow:0 18px 50px rgba(2,8,23,.12)}
-  .unified-start-card h2{margin:4px 0 8px;font-size:clamp(20px,3vw,28px)}.unified-start-card p{margin:0;color:var(--muted,#93a7c3);line-height:1.65}
-  .unified-start-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.unified-start-actions a{display:inline-flex;align-items:center;gap:7px;text-decoration:none}
-  .identity-journey{margin:24px 0 30px}.identity-journey-head{display:flex;justify-content:space-between;gap:16px;align-items:end;margin-bottom:12px}.identity-journey-head h2{margin:0}.identity-journey-head p{margin:4px 0 0;color:var(--muted,#93a7c3)}
-  .identity-journey-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}.identity-stage{position:relative;padding:16px;border:1px solid var(--border,#233552);border-radius:15px;background:var(--card,#0e1a2b);min-height:168px;display:flex;flex-direction:column;gap:8px;cursor:pointer;transition:.2s ease}.identity-stage:hover{transform:translateY(-2px);border-color:#3b82f6}.identity-stage .stage-no{font-size:11px;letter-spacing:.14em;color:#60a5fa}.identity-stage b{font-size:15px;color:var(--text,#e8f0fb)}.identity-stage p{font-size:12px;line-height:1.55;margin:0;color:var(--muted,#93a7c3)}.identity-stage .stage-go{margin-top:auto;font-size:12px;color:#7dd3fc;font-weight:700}
-  .identity-memory{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}.identity-memory>div{padding:12px;border-radius:12px;background:rgba(30,64,175,.09);border:1px solid rgba(96,165,250,.18)}.identity-memory span{display:block;font-size:10px;letter-spacing:.1em;color:#60a5fa}.identity-memory b{display:block;margin-top:4px;font-size:13px}
-  .nav-start-here .nav-ico{font-size:10px;font-weight:800;color:#7dd3fc}
-  @media(max-width:1100px){.identity-journey-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.identity-memory{grid-template-columns:1fr}}
-  @media(max-width:620px){.identity-journey-grid{grid-template-columns:1fr}.identity-stage{min-height:auto}.identity-journey-head{align-items:start;flex-direction:column}.unified-start-card{padding:17px}}
+  .unified-start-card h2{margin:4px 0 8px;font-size:clamp(20px,3vw,28px)}.unified-start-card p{margin:0;color:var(--muted,#93a7c3);line-height:1.65}.unified-start-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.unified-start-actions a{display:inline-flex;align-items:center;gap:7px;text-decoration:none}
+  .domain-journey{margin:24px 0 30px}.domain-journey-head{display:flex;justify-content:space-between;gap:16px;align-items:end;margin-bottom:12px}.domain-journey-head h2{margin:0}.domain-journey-head p{margin:4px 0 0;color:var(--muted,#93a7c3)}
+  .domain-journey-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}.journey-stage{position:relative;padding:16px;border:1px solid var(--border,#233552);border-radius:15px;background:var(--card,#0e1a2b);min-height:168px;display:flex;flex-direction:column;gap:8px;cursor:pointer;transition:.2s ease}.journey-stage:hover{transform:translateY(-2px);border-color:#3b82f6}.journey-stage .stage-no{font-size:11px;letter-spacing:.14em;color:#60a5fa}.journey-stage b{font-size:15px;color:var(--text,#e8f0fb)}.journey-stage p{font-size:12px;line-height:1.55;margin:0;color:var(--muted,#93a7c3)}.journey-stage .stage-go{margin-top:auto;font-size:12px;color:#7dd3fc;font-weight:700}
+  .journey-memory{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}.journey-memory>div{padding:12px;border-radius:12px;background:rgba(30,64,175,.09);border:1px solid rgba(96,165,250,.18)}.journey-memory span{display:block;font-size:10px;letter-spacing:.1em;color:#60a5fa}.journey-memory b{display:block;margin-top:4px;font-size:13px}.nav-start-here .nav-ico{font-size:10px;font-weight:800;color:#7dd3fc}
+  @media(max-width:1100px){.domain-journey-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.journey-memory{grid-template-columns:1fr}}
+  @media(max-width:620px){.domain-journey-grid{grid-template-columns:1fr}.journey-stage{min-height:auto}.domain-journey-head{align-items:start;flex-direction:column}.unified-start-card{padding:17px}}
   `;
   const style=document.createElement('style');style.id='unified-enhance-style';style.textContent=CSS;document.head.appendChild(style);
   function go(h){location.hash=h}
-  function addSidebar(){
-    const side=document.querySelector('.sidebar'); if(!side||document.getElementById('unifiedStartNav'))return;
-    const home=side.querySelector('[data-nav="#/home"]'); if(!home)return;
-    const item=document.createElement('div');item.id='unifiedStartNav';item.className='nav-link nav-start-here';item.innerHTML='<span class="nav-ico">01</span><span>Start Here</span>';
-    item.addEventListener('click',()=>{location.href='start-here.html'});home.insertAdjacentElement('afterend',item);
-  }
-  function addHome(){
-    if((location.hash||'#/home')!=='#/home'||document.getElementById('startHereBanner'))return;
-    const hero=document.querySelector('.main .hero');if(!hero)return;
-    const el=document.createElement('section');el.id='startHereBanner';el.className='unified-start-card';
-    el.innerHTML='<div class="eyebrow">RECOMMENDED FIRST STEP</div><h2>ใหม่กับโครงสร้าง Azure? เริ่มตรงนี้ก่อน</h2><p>จับภาพใหญ่ให้ได้ก่อนว่า Region / Zone / Subscription / Resource Group / Tenant ต่างกันยังไง แล้วค่อยเข้า 5 Domains จะลดอาการจำคำศัพท์ปนกันเยอะมาก</p><div class="unified-start-actions"><a class="btn primary" href="start-here.html">Start Here →</a><button class="btn" data-enh-nav="#/domain/identity">ข้ามไป Identity</button></div>';
-    hero.insertAdjacentElement('afterend',el);
-  }
-  function addIdentity(){
-    if(location.hash!=='#/domain/identity'||document.getElementById('identityJourney'))return;
-    const page=document.querySelector('.main .page');if(!page)return;const anchor=page.querySelector('.section-head');if(!anchor)return;
-    const el=document.createElement('section');el.id='identityJourney';el.className='identity-journey';
-    el.innerHTML=`<div class="identity-journey-head"><div><div class="eyebrow">RECOMMENDED PATH</div><h2>Identity & Governance — เดิน 5 ขั้นนี้พอ</h2><p>อ่านพื้นฐานก่อน แล้วค่อยไหลจาก Identity → Permission → Governance → Challenge</p></div><span class="badge">20–25% exam weight</span></div>
-    <div class="identity-journey-grid">
-      <div class="identity-stage" data-enh-nav="#/note/entra-id"><span class="stage-no">01 FOUNDATION</span><b>Tenant & Identity mental model</b><p>Authentication vs Authorization, Tenant vs Subscription และ Entra Role vs Azure RBAC</p><span class="stage-go">อ่าน Deep Note →</span></div>
-      <div class="identity-stage" data-enh-nav="#/topic/identity/0"><span class="stage-no">02 IDENTITIES</span><b>Users & Groups</b><p>User/Guest, Groups, properties, licenses และ SSPR โดยมอง lifecycle เป็นหลัก</p><span class="stage-go">เริ่มหัวข้อ →</span></div>
-      <div class="identity-stage" data-enh-nav="#/topic/identity/5"><span class="stage-no">03 ACCESS</span><b>RBAC & Scope</b><p>คิดเป็น WHO + ROLE + SCOPE แล้วดู inheritance/effective access</p><span class="stage-go">เรียน RBAC →</span></div>
-      <div class="identity-stage" data-enh-nav="#/visual/rbac"><span class="stage-no">04 GOVERNANCE</span><b>Policy, Locks & Tags</b><p>ใช้ Visual Lab แยกให้ชัดว่า permission, compliance และ delete protection คนละหน้าที่</p><span class="stage-go">เปิด Visual Lab →</span></div>
-      <div class="identity-stage" data-enh-nav="#/challenge/1"><span class="stage-no">05 APPLY</span><b>Challenge CH-01</b><p>Least privilege + wrong scope + policy denial + lock inheritance แบบ break-fix</p><span class="stage-go">ลงมือ Challenge →</span></div>
-    </div>
-    <div class="identity-memory"><div><span>ACCESS</span><b>WHO + ROLE + SCOPE</b></div><div><span>GOVERNANCE</span><b>RBAC ให้สิทธิ์ • Policy บังคับ state • Lock กันแก้/ลบ</b></div><div><span>EXAM</span><b>เลือก least privilege + narrowest scope ก่อนเสมอ</b></div></div></section>`;
-    anchor.parentNode.insertBefore(el,anchor);
-  }
+  function addSidebar(){const side=document.querySelector('.sidebar');if(!side||document.getElementById('unifiedStartNav'))return;const home=side.querySelector('[data-nav="#/home"]');if(!home)return;const item=document.createElement('div');item.id='unifiedStartNav';item.className='nav-link nav-start-here';item.innerHTML='<span class="nav-ico">01</span><span>Start Here</span>';item.addEventListener('click',()=>{location.href='start-here.html'});home.insertAdjacentElement('afterend',item)}
+  function addHome(){if((location.hash||'#/home')!=='#/home'||document.getElementById('startHereBanner'))return;const hero=document.querySelector('.main .hero');if(!hero)return;const el=document.createElement('section');el.id='startHereBanner';el.className='unified-start-card';el.innerHTML='<div class="eyebrow">RECOMMENDED FIRST STEP</div><h2>ใหม่กับโครงสร้าง Azure? เริ่มตรงนี้ก่อน</h2><p>จับภาพใหญ่ให้ได้ก่อนว่า Region / Zone / Subscription / Resource Group / Tenant ต่างกันยังไง แล้วค่อยเข้า 5 Domains จะลดอาการจำคำศัพท์ปนกันเยอะมาก</p><div class="unified-start-actions"><a class="btn primary" href="start-here.html">Start Here →</a><button class="btn" data-enh-nav="#/domain/identity">ข้ามไป Identity</button></div>';hero.insertAdjacentElement('afterend',el)}
+  function addJourney(){const m=(location.hash||'').match(/^#\/domain\/(identity|storage|compute|networking|monitoring)$/);if(!m||document.getElementById('domainJourney'))return;const key=m[1],j=JOURNEYS[key],page=document.querySelector('.main .page');if(!j||!page)return;const anchor=page.querySelector('.section-head');if(!anchor)return;const stages=j.stages.map(s=>`<div class="journey-stage" data-enh-nav="${s[3]}"><span class="stage-no">${s[0]}</span><b>${s[1]}</b><p>${s[2]}</p><span class="stage-go">${s[4]}</span></div>`).join('');const mem=j.memory.map(x=>`<div><span>${x[0]}</span><b>${x[1]}</b></div>`).join('');const el=document.createElement('section');el.id='domainJourney';el.className='domain-journey';el.innerHTML=`<div class="domain-journey-head"><div><div class="eyebrow">RECOMMENDED PATH</div><h2>${j.title} — เดิน 5 ขั้นนี้พอ</h2><p>${j.sub}</p></div><span class="badge">${j.badge} exam weight</span></div><div class="domain-journey-grid">${stages}</div><div class="journey-memory">${mem}</div>`;anchor.parentNode.insertBefore(el,anchor)}
   function bindExtra(){document.querySelectorAll('[data-enh-nav]').forEach(x=>{if(x.dataset.enhBound)return;x.dataset.enhBound='1';x.addEventListener('click',e=>{e.preventDefault();go(x.dataset.enhNav)})})}
-  function enhance(){addSidebar();addHome();addIdentity();bindExtra()}
-  let n=0;const timer=setInterval(()=>{n++;if(document.querySelector('.sidebar')){enhance();clearInterval(timer)}else if(n>200)clearInterval(timer)},40);
-  window.addEventListener('hashchange',()=>setTimeout(enhance,35));
+  function enhance(){addSidebar();addHome();addJourney();bindExtra()}
+  let n=0;const timer=setInterval(()=>{n++;if(document.querySelector('.sidebar')){enhance();clearInterval(timer)}else if(n>200)clearInterval(timer)},40);window.addEventListener('hashchange',()=>setTimeout(enhance,35));
 })();
