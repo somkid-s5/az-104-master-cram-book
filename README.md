@@ -1,38 +1,38 @@
 # AZ-104 2026 Master Cram Book
 
-Interactive, pass-first study guide for **Microsoft AZ-104: Microsoft Azure Administrator**.
+Interactive, pass-first study system for **Microsoft AZ-104: Microsoft Azure Administrator**.
 
 ## Live site
 
 https://somkid-s5.github.io/az-104-master-cram-book/
 
+## Source of truth
+
+The main Learn/Cram/Flashcard/Question Bank experience is generated from the user's Google Drive document:
+
+**AZ-104 2026 Complete Exam Cheat Sheet (Pass-First)**
+
+Current merged source snapshot:
+- ~49,000 characters of exam-focused notes
+- 15 official objectives across 5 domains
+- 81 objective-completeness checklist items
+- 103 high-yield flashcards
+- 155 original scenario questions generated from the study notes and decision patterns
+
+The paid Udemy practice-test files in Drive are **not copied into the site**; the question bank is original practice content.
+
 ## Study modes
 
-- Multi-page Learn mode across the five AZ-104 domains
-- Cram Sheet for last-minute review
-- 50 Flashcards
-- Scenario Quiz
-- Official Blueprint coverage tracker
+- Full Google-Drive-backed Learn pages
+- 10 Visual Labs
+- Cram Sheet with cross-topic comparisons and last-minute triggers
+- 103 Flashcards
+- 155-question scenario bank with domain filters and 20/50/100/all modes
+- Blueprint checklist
 - Local browser progress and dark/light theme
-- Automated Playwright UI regression gate before GitHub Pages deploys
-
-## Visual Labs Hub
-
-Open `labs.html` from the live site to access the full interactive lab set.
-
-1. `rbac-lab.html` — RBAC / Policy / Locks
-2. `storage-lab.html` — Storage redundancy and failover
-3. `storage-access-lab.html` — Entra/RBAC, SAS types, stored access policy
-4. `compute-lab.html` — VM availability, zones, VMSS and autoscale
-5. `appservice-lab.html` — App Service slots, scaling and networking
-6. `containers-lab.html` — ACR, ACI and Container Apps
-7. `networking-lab.html` — DNS, routes, NSG, peering and Private Endpoint
-8. `loadbalancing-lab.html` — Load Balancer, Application Gateway, Traffic Manager and Front Door
-9. `monitor-lab.html` — Azure Monitor metrics/logs, alerts and Action Groups
-10. `recovery-lab.html` — Azure Backup vs Site Recovery
 
 ## Quality gate
 
-Every push to `main` must pass desktop and mobile browser regression tests before the GitHub Pages deploy job can run. Tests check rendering, JavaScript errors, console errors, broken local links and horizontal overflow, and exercise core interactive controls.
+Every push to `main` must pass Playwright regression tests on desktop and mobile before GitHub Pages deploys. The gate checks rendering, JavaScript/console errors, broken local links, horizontal overflow, core interactions, and presence of Drive-only content such as SSPR, Azure Files identity access, Encryption at Host, Bastion and Network Watcher.
 
-> Study aid only. Always use the current Microsoft Learn AZ-104 study guide as the authoritative exam-scope reference.
+> Study aid only. Always compare changing exam scope and service behavior with current Microsoft Learn documentation.
