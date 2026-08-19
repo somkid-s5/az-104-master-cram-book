@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="th" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Containers Visual Lab • AZ-104</title>
+<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/lab.css">
+<link rel="stylesheet" href="assets/containers-lab.css">
+</head>
+<body class="lab-body containers-lab-body">
+<header class="lab-topbar">
+  <a class="lab-back" href="compute.html">← Compute</a>
+  <div class="lab-title-wrap"><span class="lab-kicker">INTERACTIVE LESSON</span><strong>ACR → ACI → Container Apps</strong></div>
+  <div class="lab-top-actions"><span id="stepCounter" class="lab-step">1 / 6</span><button class="icon-btn" id="themeToggle" aria-label="Toggle theme">◐</button></div>
+</header>
+
+<aside class="lab-rail" aria-label="Lesson sections">
+  <div class="rail-brand">AZ-104 VISUAL LAB</div>
+  <button class="rail-item active" data-step="0"><span>01</span><b>Container Flow</b></button>
+  <button class="rail-item" data-step="1"><span>02</span><b>Azure Container Registry</b></button>
+  <button class="rail-item" data-step="2"><span>03</span><b>Container Instances</b></button>
+  <button class="rail-item" data-step="3"><span>04</span><b>Container Apps</b></button>
+  <button class="rail-item" data-step="4"><span>05</span><b>Scale & Revisions</b></button>
+  <button class="rail-item" data-step="5"><span>06</span><b>Exam Check</b></button>
+  <div class="rail-tip">Mental model: ACR stores images • ACI runs simple container groups • Container Apps adds revisions, ingress and autoscale</div>
+</aside>
+
+<main class="lab-main">
+  <section class="lab-panel lab-controls-panel">
+    <div class="panel-head">
+      <div>
+        <div class="eyebrow">CONTAINER DECISION LAB</div>
+        <h1 id="lessonTitle">From image to running container</h1>
+        <p id="lessonSubtitle">ดูเส้นทาง image จาก registry ไป runtime แล้วเลือก service ให้ตรง requirement</p>
+      </div>
+      <div class="container-tabs">
+        <button class="container-mode active" data-mode="flow">Flow</button>
+        <button class="container-mode" data-mode="aci">ACI</button>
+        <button class="container-mode" data-mode="aca">Container Apps</button>
+      </div>
+    </div>
+    <div class="scenario-row">
+      <span class="scenario-label">SIMULATE</span>
+      <button class="scenario-btn active" data-scenario="push">Push image → ACR</button>
+      <button class="scenario-btn" data-scenario="runonce">Run-once job → ACI</button>
+      <button class="scenario-btn" data-scenario="burst">HTTP burst → scale out</button>
+      <button class="scenario-btn" data-scenario="idle">Idle → scale to zero</button>
+      <button class="scenario-btn" data-scenario="revision">Release v2 → revision</button>
+      <button class="btn primary run-btn" id="runScenario">▶ Run simulation</button>
+    </div>
+  </section>
+
+  <section class="container-workspace">
+    <article class="diagram-card container-diagram-card">
+      <div class="diagram-head">
+        <div><span class="diagram-label">DEPLOYMENT TOPOLOGY</span><h2 id="diagramTitle">Build once, store image, choose a runtime</h2></div>
+        <div class="legend"><span><i class="dot image-dot"></i>image</span><span><i class="dot runtime-dot"></i>runtime</span><span><i class="dot scale-dot"></i>scale</span></div>
+      </div>
+
+      <div class="container-flow" id="containerFlow">
+        <div class="flow-node source-node" id="sourceNode"><small>SOURCE / BUILD</small><strong>Docker image</strong><span>web:v1</span><div class="cube">▣</div></div>
+        <div class="flow-link" id="pushLink"><span>push</span><i></i><b>›</b></div>
+        <div class="flow-node registry-node" id="registryNode"><small>AZURE CONTAINER REGISTRY</small><strong>myacr.azurecr.io</strong><span id="registryTag">web:v1</span><div class="repo-stack"><i></i><i></i><i></i></div></div>
+        <div class="runtime-split">
+          <div class="split-line up" id="aciPull"><span>pull</span><i></i></div>
+          <div class="split-line down" id="acaPull"><span>pull</span><i></i></div>
+        </div>
+        <div class="runtime-column">
+          <div class="runtime-card aci-card" id="aciCard">
+            <div class="runtime-head"><span>ACI</span><b>Container Instance</b></div>
+            <div class="container-group"><small>CONTAINER GROUP</small><strong id="aciStatus">Stopped</strong><span id="aciDetail">1 container • 1 vCPU • 1.5 GiB</span></div>
+            <div class="restart-row"><span>Restart</span><b id="restartPolicy">OnFailure</b></div>
+          </div>
+          <div class="runtime-card aca-card" id="acaCard">
+            <div class="runtime-head"><span>ACA</span><b>Container App</b></div>
+            <div class="revision-row"><div class="revision active" id="rev1"><small>REVISION</small><b>v1</b><span id="rev1Traffic">100% traffic</span></div><div class="revision" id="rev2"><small>REVISION</small><b>v2</b><span id="rev2Traffic">0% traffic</span></div></div>
+            <div class="replicas" id="replicas"><i class="replica"></i></div>
+            <div class="scale-row"><span>Replicas</span><b id="replicaCount">1</b><span>min <b id="minReplicas">0</b> / max <b id="maxReplicas">10</b></span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="container-readout">
+        <div class="container-lamp" id="containerLamp"></div>
+        <div><span>RESULT</span><strong id="scenarioResult">Ready</strong><p id="scenarioExplain">เลือก scenario แล้วกด Run simulation</p></div>
+      </div>
+    </article>
+
+    <aside class="container-status-card">
+      <span class="explain-eyebrow">EXAM DECISION</span>
+      <h3 id="decisionTitle">Azure Container Registry</h3>
+      <p id="decisionBody">ACR คือ private registry สำหรับเก็บและแจกจ่าย container images/artifacts ไม่ใช่ runtime ที่เอาไว้รัน application.</p>
+      <div class="decision-list">
+        <div class="decision-row"><span>ROLE</span><b id="roleValue">Image registry</b></div>
+        <div class="decision-row"><span>BEST FOR</span><b id="bestValue">Store / pull images</b></div>
+        <div class="decision-row"><span>SCALE MODEL</span><b id="scaleValue">Registry service</b></div>
+        <div class="decision-row"><span>KEYWORD</span><b id="keywordValue">repository / tag / image</b></div>
+      </div>
+      <div class="memory-box"><span>จำไปสอบ</span><strong id="memoryRule">ACR stores • ACI runs simply • Container Apps orchestrates app revisions + scaling</strong></div>
+      <div class="trap-box"><span>EXAM TRAP</span><p id="trapText">การมี image ใน ACR ไม่ได้ทำให้ container รันเอง ต้องมี runtime เช่น ACI หรือ Container Apps มาดึง image ไปใช้งาน.</p></div>
+    </aside>
+  </section>
+
+  <section class="decision-section">
+    <div class="section-head-row"><div><span class="diagram-label">FAST COMPARE</span><h2>ACR vs ACI vs Container Apps</h2></div></div>
+    <div class="compare-grid container-compare-grid">
+      <button class="compare-card" data-compare="acr"><span>ACR</span><b>Private image registry</b><ul><li>repositories + tags</li><li>push / pull images</li><li>ACR Tasks can build images</li></ul></button>
+      <button class="compare-card" data-compare="aci"><span>ACI</span><b>Run containers on demand</b><ul><li>container group</li><li>CPU / memory sizing</li><li>restart Always / Never / OnFailure</li></ul></button>
+      <button class="compare-card" data-compare="aca"><span>CONTAINER APPS</span><b>Managed app platform</b><ul><li>ingress + revisions</li><li>HTTP / TCP / KEDA scaling</li><li>most apps can scale to zero</li></ul></button>
+      <button class="compare-card" data-compare="identity"><span>PRIVATE ACR</span><b>Runtime needs pull permission</b><ul><li>authenticate to registry</li><li>managed identity is common</li><li>AcrPull / repository permission</li></ul></button>
+    </div>
+  </section>
+
+  <section class="revision-section">
+    <div class="section-head-row"><div><span class="diagram-label">CONTAINER APPS</span><h2>Revision + traffic + scale mental model</h2></div></div>
+    <div class="revision-mental-grid">
+      <div class="mental-card"><span>REVISION</span><b>Immutable snapshot</b><p>Version-changing updates create a new revision. Multiple revisions can be active depending on revision mode.</p></div>
+      <div class="mental-card"><span>TRAFFIC</span><b>Split between revisions</b><p>Use traffic weights for blue/green or A/B style rollout.</p></div>
+      <div class="mental-card"><span>SCALE</span><b>Per-revision replicas</b><p>Scale rules add/remove replicas. Min replicas can be zero for many workloads.</p></div>
+      <div class="mental-card"><span>ENVIRONMENT</span><b>Shared boundary</b><p>Container Apps live inside an environment that provides networking/logging/isolation boundary.</p></div>
+    </div>
+  </section>
+
+  <section class="challenge-section" id="challengeSection">
+    <div class="challenge-card">
+      <span class="diagram-label">MINI EXAM</span>
+      <h2 id="challengeTitle">Scenario 1 / 6</h2>
+      <p class="challenge-q" id="challengeQ"></p>
+      <div class="answer-grid" id="answers"></div>
+      <div class="challenge-feedback" id="challengeFeedback">เลือกคำตอบ แล้วดูเหตุผล</div>
+      <button class="btn" id="nextChallenge">Next scenario →</button>
+    </div>
+  </section>
+</main>
+
+<nav class="lesson-nav">
+  <button class="btn" id="prevStep">← Previous</button>
+  <div class="lesson-progress"><i id="lessonProgress"></i></div>
+  <button class="btn primary" id="nextStep">Next →</button>
+</nav>
+<script src="assets/containers-lab.js"></script>
+</body>
+</html>
