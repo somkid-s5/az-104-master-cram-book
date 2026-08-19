@@ -49,6 +49,22 @@ async function assertLocalLinks(page, label) {
   }
 }
 
+async function assertPageShell(page, file) {
+  if (file.endsWith('-lab.html')) {
+    await expect(page.locator('.lab-main')).toBeVisible();
+    return;
+  }
+  if (file === 'unified/index.html') {
+    await expect(page.locator('#app')).toBeVisible();
+    return;
+  }
+  if (file === 'unified/start-here.html') {
+    await expect(page.locator('.wrap')).toBeVisible();
+    return;
+  }
+  await expect(page.locator('.app')).toBeVisible();
+}
+
 async function exercisePage(page, file) {
   if (file.endsWith('-lab.html')) {
     const next = page.locator('#nextStep');
@@ -106,11 +122,7 @@ for (const viewport of viewports) {
         expect(response, `${file}: no navigation response`).not.toBeNull();
         expect(response.status(), `${file}: page did not load`).toBeLessThan(400);
 
-        if (file.endsWith('-lab.html')) {
-          await expect(page.locator('.lab-main')).toBeVisible();
-        } else {
-          await expect(page.locator('.app')).toBeVisible();
-        }
+        await assertPageShell(page, file);
 
         const textLength = await page.locator('body').innerText().then((t) => t.trim().length);
         expect(textLength, `${file}: rendered body is unexpectedly empty`).toBeGreaterThan(80);
