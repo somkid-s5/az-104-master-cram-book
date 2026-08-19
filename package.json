@@ -1,0 +1,10 @@
+{
+  "name": "az-104-master-cram-book",
+  "private": true,
+  "scripts": {
+    "test:ui": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.55.0"
+  }
+}
