@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="th" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Azure Load Balancing Decision Lab • AZ-104</title>
+<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/lab.css">
+<link rel="stylesheet" href="assets/loadbalancing-lab.css">
+</head>
+<body class="lab-body lb-lab-body">
+<header class="lab-topbar">
+  <a class="lab-back" href="networking.html">← Networking</a>
+  <div class="lab-title-wrap"><span class="lab-kicker">INTERACTIVE LESSON</span><strong>Load Balancing Decision Lab</strong></div>
+  <div class="lab-top-actions"><span id="stepCounter" class="lab-step">1 / 6</span><button class="icon-btn" id="themeToggle" aria-label="Toggle theme">◐</button></div>
+</header>
+<aside class="lab-rail" aria-label="Lesson sections">
+  <div class="rail-brand">AZ-104 VISUAL LAB</div>
+  <button class="rail-item active" data-step="0"><span>01</span><b>Choose Service</b></button>
+  <button class="rail-item" data-step="1"><span>02</span><b>Load Balancer</b></button>
+  <button class="rail-item" data-step="2"><span>03</span><b>App Gateway</b></button>
+  <button class="rail-item" data-step="3"><span>04</span><b>Traffic Manager</b></button>
+  <button class="rail-item" data-step="4"><span>05</span><b>Front Door</b></button>
+  <button class="rail-item" data-step="5"><span>06</span><b>Exam Check</b></button>
+  <div class="rail-tip">Mental model: L4 TCP/UDP = Load Balancer • regional L7 = App Gateway • global DNS = Traffic Manager • global web edge = Front Door</div>
+</aside>
+<main class="lab-main">
+  <section class="lab-panel lab-controls-panel">
+    <div class="panel-head">
+      <div><div class="eyebrow">TRAFFIC DECISION</div><h1 id="lessonTitle">Pick the traffic service</h1><p id="lessonSubtitle">เลือก requirement แล้วดูว่าบริการไหนรับ traffic และตัดสินใจตรงไหน</p></div>
+      <div class="lb-tabs">
+        <button class="lb-mode active" data-mode="lb">Load Balancer</button>
+        <button class="lb-mode" data-mode="agw">App Gateway</button>
+        <button class="lb-mode" data-mode="tm">Traffic Manager</button>
+        <button class="lb-mode" data-mode="fd">Front Door</button>
+      </div>
+    </div>
+    <div class="scenario-row">
+      <span class="scenario-label">SIMULATE</span>
+      <button class="scenario-btn active" data-scenario="tcp">TCP/UDP to VMs</button>
+      <button class="scenario-btn" data-scenario="path">/api vs /images + WAF</button>
+      <button class="scenario-btn" data-scenario="dns">Global DNS failover</button>
+      <button class="scenario-btn" data-scenario="edge">Global HTTPS edge</button>
+      <button class="scenario-btn" data-scenario="internal">Private TCP</button>
+      <button class="btn primary" id="runTraffic">▶ Run traffic</button>
+    </div>
+  </section>
+
+  <section class="lb-workspace">
+    <article class="diagram-card lb-diagram-card">
+      <div class="diagram-head">
+        <div><span class="diagram-label">REQUEST PATH</span><h2 id="diagramTitle">Client → regional Layer 4 frontend → healthy backend</h2></div>
+        <div class="legend"><span><i class="dot path-ok"></i>request</span><span><i class="dot path-warn"></i>decision</span><span><i class="dot path-fail"></i>health</span></div>
+      </div>
+      <div class="traffic-map">
+        <div class="client-cloud node" id="clientNode"><small>CLIENT</small><strong id="clientLabel">Internet client</strong><span id="clientDetail">TCP :443</span></div>
+        <div class="hop-arrow" id="hop1"><i></i><b>›</b></div>
+        <div class="decision-node node" id="serviceNode"><small id="serviceScope">REGIONAL • L4</small><strong id="serviceLabel">Azure Load Balancer</strong><span id="serviceDetail">frontend IP + rule + probe</span></div>
+        <div class="hop-arrow" id="hop2"><i></i><b>›</b></div>
+        <div class="backend-zone">
+          <div class="backend-card" id="backendA"><small>BACKEND A</small><strong>vm-01</strong><span>healthy</span></div>
+          <div class="backend-card" id="backendB"><small>BACKEND B</small><strong>vm-02</strong><span>healthy</span></div>
+        </div>
+      </div>
+      <div class="routing-chip-row">
+        <div><span>TRAFFIC</span><b id="trafficType">TCP / UDP</b></div>
+        <div><span>SCOPE</span><b id="scopeValue">Regional</b></div>
+        <div><span>DECISION</span><b id="decisionPoint">IP + port / flow</b></div>
+        <div><span>WAF</span><b id="wafValue">No</b></div>
+      </div>
+      <div class="lb-readout"><div class="lb-lamp" id="lbLamp"></div><div><span>RESULT</span><strong id="lbResult">Ready</strong><p id="lbExplain">กด Run traffic เพื่อดู request path</p></div></div>
+    </article>
+
+    <aside class="lb-status-card">
+      <span class="explain-eyebrow">EXAM DECISION</span>
+      <h3 id="decisionTitle">Azure Load Balancer</h3>
+      <p id="decisionBody">เหมาะกับ Layer 4 TCP/UDP ที่ต้องกระจาย flow ไป backend VM/VMSS ภายใน Azure.</p>
+      <div class="decision-list">
+        <div class="decision-row"><span>LAYER</span><b id="layerValue">Layer 4</b></div>
+        <div class="decision-row"><span>REACH</span><b id="reachValue">Regional / global tier</b></div>
+        <div class="decision-row"><span>REQUEST PROCESSING</span><b id="processingValue">TCP/UDP flow</b></div>
+        <div class="decision-row"><span>KEYWORD</span><b id="keywordValue">IP / port / TCP / UDP</b></div>
+      </div>
+      <div class="memory-box"><span>จำไปสอบ</span><strong id="memoryRule">Load Balancer = L4 • App Gateway = regional L7 • Traffic Manager = DNS • Front Door = global L7 web edge</strong></div>
+      <div class="trap-box"><span>EXAM TRAP</span><p id="trapText">Traffic Manager ไม่ได้ proxy request หลัง DNS resolve; client ต่อ endpoint ที่ DNS เลือกให้โดยตรง.</p></div>
+    </aside>
+  </section>
+
+  <section class="compare-section">
+    <div class="section-head-row"><div><span class="diagram-label">FAST COMPARE</span><h2>Four services, four mental models</h2></div></div>
+    <div class="compare-grid lb-compare-grid">
+      <button class="compare-card" data-pick="lb"><span>LOAD BALANCER</span><b>Layer 4 TCP/UDP</b><ul><li>public or internal frontend</li><li>backend VM / VMSS</li><li>health probes + rules</li></ul></button>
+      <button class="compare-card" data-pick="agw"><span>APPLICATION GATEWAY</span><b>Regional Layer 7</b><ul><li>HTTP request attributes</li><li>URL/host routing</li><li>TLS termination + WAF</li></ul></button>
+      <button class="compare-card" data-pick="tm"><span>TRAFFIC MANAGER</span><b>Global DNS routing</b><ul><li>DNS answer chooses endpoint</li><li>public endpoints</li><li>priority/performance/weighted/etc.</li></ul></button>
+      <button class="compare-card" data-pick="fd"><span>FRONT DOOR</span><b>Global web edge</b><ul><li>HTTP(S) application delivery</li><li>edge acceleration + fast failover</li><li>routing / caching / WAF options</li></ul></button>
+    </div>
+  </section>
+
+  <section class="challenge-section" id="challengeSection">
+    <div class="challenge-card">
+      <span class="diagram-label">MINI EXAM</span><h2 id="challengeTitle">Scenario 1 / 6</h2>
+      <p class="challenge-q" id="challengeQ"></p><div class="answer-grid" id="answers"></div>
+      <div class="challenge-feedback" id="challengeFeedback">เลือกคำตอบ แล้วดูเหตุผล</div>
+      <button class="btn" id="nextChallenge">Next scenario →</button>
+    </div>
+  </section>
+</main>
+<nav class="lesson-nav"><button class="btn" id="prevStep">← Previous</button><div class="lesson-progress"><i id="lessonProgress"></i></div><button class="btn primary" id="nextStep">Next →</button></nav>
+<script src="assets/loadbalancing-lab.js"></script>
+</body></html>

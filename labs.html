@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="th" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Visual Labs Hub • AZ-104</title>
+<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/labs.css">
+</head>
+<body class="labs-body">
+<header class="labs-top">
+  <a class="labs-brand" href="index.html"><span>AZ</span><div><b>AZ-104 Visual Labs</b><small>INTERACTIVE STUDY HUB</small></div></a>
+  <div class="labs-actions"><a class="btn" href="index.html">← Dashboard</a><a class="btn" href="cram.html">⚡ Cram</a><button class="icon-btn" id="themeToggle" aria-label="Toggle theme">◐</button></div>
+</header>
+<main class="labs-wrap">
+  <section class="labs-hero">
+    <div><div class="eyebrow">10 HIGH-VALUE VISUAL LABS</div><h1>เลือกเรื่องที่ “เห็นภาพแล้วจำง่ายกว่า”</h1><p>Lab ชุดนี้เน้น decision pattern ที่ AZ-104 ชอบถาม: scope, redundancy, auth, availability, networking, load balancing, monitoring และ recovery.</p></div>
+    <div class="hub-stats"><div><b>10</b><span>Visual Labs</span></div><div><b>5</b><span>Exam Domains</span></div><div><b>2</b><span>Viewports tested</span></div></div>
+  </section>
+  <section class="domain-jump">
+    <button class="filter active" data-domain="all">All</button>
+    <button class="filter" data-domain="identity">Identity</button>
+    <button class="filter" data-domain="storage">Storage</button>
+    <button class="filter" data-domain="compute">Compute</button>
+    <button class="filter" data-domain="networking">Networking</button>
+    <button class="filter" data-domain="monitoring">Monitor & Recovery</button>
+  </section>
+  <section class="lab-grid" id="labGrid">
+    <a class="lab-card" data-domain="identity" href="rbac-lab.html"><span class="num">01 • IDENTITY</span><h2>RBAC / Policy / Locks</h2><p>Scope inheritance, role capability, deny/configuration vs permission และ resource locks.</p><div class="tags"><i>RBAC</i><i>Policy</i><i>Locks</i></div><b class="go">Open Lab →</b></a>
+    <a class="lab-card" data-domain="storage" href="storage-lab.html"><span class="num">02 • STORAGE</span><h2>Storage Redundancy</h2><p>LRS / ZRS / GRS / GZRS, zone/region failure, read-access variants และ failover mental model.</p><div class="tags"><i>ZRS</i><i>Geo</i><i>Failover</i></div><b class="go">Open Lab →</b></a>
+    <a class="lab-card" data-domain="storage" href="storage-access-lab.html"><span class="num">03 • STORAGE</span><h2>Storage Access & SAS</h2><p>Entra + RBAC, user delegation SAS, service SAS, account SAS และ stored access policy.</p><div class="tags"><i>Entra</i><i>SAS</i><i>RBAC</i></div><b class="go">Open Lab →</b></a>
+    <a class="lab-card" data-domain="compute" href="compute-lab.html"><span class="num">04 • COMPUTE</span><h2>VM Availability & Scale</h2><p>Availability Set, Zones, VMSS, rack/zone failure และ traffic spike.</p><div class="tags"><i>Zones</i><i>VMSS</i><i>Autoscale</i></div><b class="go">Open Lab →</b></a>
+    <a class="lab-card" data-domain="compute" href="appservice-lab.html"><span class="num">05 • COMPUTE</span><h2>App Service</h2><p>Slots, swap, scale up/out, VNet Integration และ Private Endpoint.</p><div class="tags"><i>Slots</i><i>Scale</i><i>Network</i></div><b class="go">Open Lab →</b></a>
+    <a class="lab-card" data-domain="compute" href="containers-lab.html"><span class="num">06 • COMPUTE</span><h2>Containers</h2><p>ACR → ACI → Container Apps, revisions, traffic split และ scale-to-zero.</p><div class="tags"><i>ACR</i><i>ACI</i><i>ACA</i></div><b class="go">Open Lab →</b></a>
+    <a class="lab-card" data-domain="networking" href="networking-lab.html"><span class="num">07 • NETWORKING</span><h2>Packet / Connection Flow</h2><p>DNS, effective route, NSG, peering, Private Endpoint และจุดที่ connection ถูก block.</p><div class="tags"><i>DNS</i><i>UDR</i><i>NSG</i></div><b class="go">Open Lab →</b></a>
+    <a class="lab-card" data-domain="networking" href="loadbalancing-lab.html"><span class="num">08 • NETWORKING</span><h2>Load Balancing Decision</h2><p>Load Balancer vs Application Gateway vs Traffic Manager vs Front Door.</p><div class="tags"><i>L4</i><i>L7</i><i>Global</i></div><b class="go">Open Lab →</b></a>
+    <a class="lab-card" data-domain="monitoring" href="monitor-lab.html"><span class="num">09 • MONITOR</span><h2>Azure Monitor & Alerts</h2><p>Metrics, Logs/KQL, Alert Rule, Processing Rule และ Action Group.</p><div class="tags"><i>Metrics</i><i>KQL</i><i>Alerts</i></div><b class="go">Open Lab →</b></a>
+    <a class="lab-card" data-domain="monitoring" href="recovery-lab.html"><span class="num">10 • RECOVERY</span><h2>Backup vs Site Recovery</h2><p>Recovery point, restore, replication, failover, commit, reprotect และ failback.</p><div class="tags"><i>Backup</i><i>ASR</i><i>Failback</i></div><b class="go">Open Lab →</b></a>
+  </section>
+  <section class="finish-strip"><div><span>EXAM FLOW</span><b>Visualize → Cram → Flashcards → Scenario Quiz → Blueprint</b></div><div class="finish-actions"><a class="btn primary" href="cram.html">Continue to Cram →</a><a class="btn" href="quiz.html">Practice Quiz</a><a class="btn" href="blueprint.html">Blueprint</a></div></section>
+</main>
+<script src="assets/labs.js"></script>
+</body></html>

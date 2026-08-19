@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="th" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Storage Access & SAS Decision Lab • AZ-104</title>
+<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/lab.css">
+<link rel="stylesheet" href="assets/storage-access-lab.css">
+</head>
+<body class="lab-body sa-lab-body">
+<header class="lab-topbar">
+  <a class="lab-back" href="storage.html">← Storage</a>
+  <div class="lab-title-wrap"><span class="lab-kicker">INTERACTIVE LESSON</span><strong>Storage Access & SAS Decision Lab</strong></div>
+  <div class="lab-top-actions"><span id="stepCounter" class="lab-step">1 / 6</span><button class="icon-btn" id="themeToggle" aria-label="Toggle theme">◐</button></div>
+</header>
+<aside class="lab-rail" aria-label="Lesson sections">
+  <div class="rail-brand">AZ-104 VISUAL LAB</div>
+  <button class="rail-item active" data-step="0"><span>01</span><b>Choose Auth</b></button>
+  <button class="rail-item" data-step="1"><span>02</span><b>Entra + RBAC</b></button>
+  <button class="rail-item" data-step="2"><span>03</span><b>User Delegation SAS</b></button>
+  <button class="rail-item" data-step="3"><span>04</span><b>Service / Account SAS</b></button>
+  <button class="rail-item" data-step="4"><span>05</span><b>Revoke & Scope</b></button>
+  <button class="rail-item" data-step="5"><span>06</span><b>Exam Check</b></button>
+  <div class="rail-tip">Mental model: identity available → Entra/RBAC first • delegated temporary URL → SAS • prefer user delegation SAS when SAS is needed</div>
+</aside>
+<main class="lab-main">
+  <section class="lab-panel lab-controls-panel">
+    <div class="panel-head">
+      <div><div class="eyebrow">DATA ACCESS DECISION</div><h1 id="lessonTitle">Choose authorization first</h1><p id="lessonSubtitle">ดูว่าใครต้องเข้าถึงอะไร นานแค่ไหน และควรถือ secret แบบไหน</p></div>
+      <div class="auth-tabs">
+        <button class="auth-mode active" data-mode="entra">Entra + RBAC</button>
+        <button class="auth-mode" data-mode="uds">User delegation SAS</button>
+        <button class="auth-mode" data-mode="service">Service SAS</button>
+        <button class="auth-mode" data-mode="account">Account SAS</button>
+      </div>
+    </div>
+    <div class="scenario-row">
+      <span class="scenario-label">SIMULATE</span>
+      <button class="scenario-btn active" data-scenario="managed">Azure app → Blob</button>
+      <button class="scenario-btn" data-scenario="download">Temporary download link</button>
+      <button class="scenario-btn" data-scenario="revoke">Revoke many SAS centrally</button>
+      <button class="scenario-btn" data-scenario="multi">Multiple storage services</button>
+      <button class="scenario-btn" data-scenario="sharedkey">Legacy account key</button>
+      <button class="btn primary" id="runAccess">▶ Run authorization</button>
+    </div>
+  </section>
+
+  <section class="sa-workspace">
+    <article class="diagram-card sa-diagram-card">
+      <div class="diagram-head">
+        <div><span class="diagram-label">AUTHORIZATION PATH</span><h2 id="diagramTitle">Managed identity → Entra token → data role → Blob</h2></div>
+        <div class="legend"><span><i class="dot path-ok"></i>identity</span><span><i class="dot path-warn"></i>delegation</span><span><i class="dot path-fail"></i>shared secret</span></div>
+      </div>
+      <div class="auth-flow">
+        <div class="auth-node" id="actorNode"><small>CALLER</small><strong id="actorTitle">Azure VM / App</strong><span id="actorDetail">managed identity</span></div>
+        <div class="auth-arrow" id="authArrow1"><i></i><b>›</b><span id="arrow1Label">token</span></div>
+        <div class="auth-node middle" id="authNode"><small id="authKind">MICROSOFT ENTRA ID</small><strong id="authTitle">OAuth access token</strong><span id="authDetail">Storage data role</span></div>
+        <div class="auth-arrow" id="authArrow2"><i></i><b>›</b><span id="arrow2Label">authorize</span></div>
+        <div class="auth-node storage" id="storageNode"><small>AZURE STORAGE</small><strong id="storageTarget">Blob container</strong><span id="storageAction">Read data</span></div>
+      </div>
+      <div class="sas-token" id="sasToken"><span>DELEGATED ACCESS</span><code id="tokenText">https://...blob?...&sp=r&se=...</code><b id="tokenBadge">No SAS needed</b></div>
+      <div class="routing-chip-row access-chips">
+        <div><span>SIGNED BY</span><b id="signedBy">Entra token</b></div>
+        <div><span>SCOPE</span><b id="scopeValue">RBAC assignment</b></div>
+        <div><span>EXPIRY</span><b id="expiryValue">Token lifetime</b></div>
+        <div><span>REVOCATION</span><b id="revokeValue">Remove role / identity</b></div>
+      </div>
+      <div class="sa-readout"><div class="sa-lamp" id="saLamp"></div><div><span>RESULT</span><strong id="saResult">Ready</strong><p id="saExplain">กด Run authorization เพื่อดูว่า request ผ่านอะไรบ้าง</p></div></div>
+    </article>
+
+    <aside class="sa-status-card">
+      <span class="explain-eyebrow">EXAM DECISION</span><h3 id="decisionTitle">Microsoft Entra ID + Azure RBAC</h3>
+      <p id="decisionBody">เมื่อ workload มี identity ให้ใช้ Entra/managed identity กับ data-plane RBAC แทนการแจก storage account key.</p>
+      <div class="decision-list">
+        <div class="decision-row"><span>BEST FOR</span><b id="bestValue">Azure-hosted workload</b></div>
+        <div class="decision-row"><span>SECRET EXPOSURE</span><b id="secretValue">No account key</b></div>
+        <div class="decision-row"><span>SAS TYPE</span><b id="sasTypeValue">None</b></div>
+        <div class="decision-row"><span>KEYWORD</span><b id="keywordValue">managed identity / data role</b></div>
+      </div>
+      <div class="memory-box"><span>จำไปสอบ</span><strong id="memoryRule">Identity available → Entra/RBAC first. Need a temporary delegated URL → SAS.</strong></div>
+      <div class="trap-box"><span>EXAM TRAP</span><p id="trapText">Storage account management roles ไม่ได้แปลว่าจะอ่าน Blob data ได้เสมอ; data access ใช้ Storage data roles.</p></div>
+    </aside>
+  </section>
+
+  <section class="compare-section">
+    <div class="section-head-row"><div><span class="diagram-label">FAST COMPARE</span><h2>Authorization choices</h2></div></div>
+    <div class="compare-grid sa-compare-grid">
+      <button class="compare-card" data-pick="managed"><span>ENTRA + RBAC</span><b>Identity-based data access</b><ul><li>users / apps / managed identities</li><li>Storage data roles</li><li>preferred when possible</li></ul></button>
+      <button class="compare-card" data-pick="download"><span>USER DELEGATION SAS</span><b>SAS signed from Entra credentials</b><ul><li>temporary delegated access</li><li>preferred SAS approach</li><li>not tied to stored access policy</li></ul></button>
+      <button class="compare-card" data-pick="revoke"><span>SERVICE SAS</span><b>One storage service</b><ul><li>signed with account key</li><li>can bind to stored access policy</li><li>policy can change/revoke group</li></ul></button>
+      <button class="compare-card" data-pick="multi"><span>ACCOUNT SAS</span><b>One or more storage services</b><ul><li>signed with account key</li><li>broader service/account scope</li><li>no stored access policy</li></ul></button>
+    </div>
+  </section>
+
+  <section class="challenge-section" id="challengeSection">
+    <div class="challenge-card">
+      <span class="diagram-label">MINI EXAM</span><h2 id="challengeTitle">Scenario 1 / 7</h2>
+      <p class="challenge-q" id="challengeQ"></p><div class="answer-grid" id="answers"></div>
+      <div class="challenge-feedback" id="challengeFeedback">เลือกคำตอบ แล้วดูเหตุผล</div><button class="btn" id="nextChallenge">Next scenario →</button>
+    </div>
+  </section>
+</main>
+<nav class="lesson-nav"><button class="btn" id="prevStep">← Previous</button><div class="lesson-progress"><i id="lessonProgress"></i></div><button class="btn primary" id="nextStep">Next →</button></nav>
+<script src="assets/storage-access-lab.js"></script>
+</body></html>
