@@ -1,6 +1,8 @@
-name: Deploy static content to Pages
+name: Test and deploy static content to Pages
 
 on:
+  push:
+    branches: ["main"]
   workflow_dispatch:
 
 permissions:
@@ -13,7 +15,41 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  quality:
+    name: UI regression gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install test dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run desktop and mobile regression tests
+        run: npm run test:ui
+
+      - name: Upload Playwright failure report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-regression-report
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 7
+
   deploy:
+    name: Deploy GitHub Pages
+    needs: quality
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -21,12 +57,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
-      - name: Upload artifact
+
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
         with:
           path: '.'
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
